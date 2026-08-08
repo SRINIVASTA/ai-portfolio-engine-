@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-import random
 
 # Force strict dark mode styling layout
 st.set_page_config(page_title="AI Portfolio Engine", layout="wide", initial_sidebar_state="collapsed")
@@ -42,18 +41,18 @@ if not st.session_state.logged_in:
             st.session_state.username = input_username.strip()
             st.rerun()
         else:
-            st.error("Please provide a valid developer handler username to proceed.")
+            st.error("Please provide a valid developer username to proceed.")
 
 # --- MULTI-TENANT DASHBOARD & FRONTEND PORTFOLIO SHELL ---
 else:
     username = st.session_state.username
     
     # Simple navigation banner
-    cols = st.columns([8, 2])
+    cols = st.columns([4, 1])
     with cols[0]:
         st.title(f"✨ Developer Portfolio: {username}")
     with cols[1]:
-        if st.button("Log Out of System", type="secondary"):
+        if st.button("Log Out of System", type="secondary", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.username = None
             st.session_state.chat_history = []
@@ -63,7 +62,7 @@ else:
     st.write("---")
     
     # Left and Right grid columns separating Portfolio Layout from Recruitment Chatbot
-    left_layout, right_chatbot = st.columns([3, 2], gap="large")
+    left_layout, right_chatbot = st.columns([1, 1], gap="large")
     
     with left_layout:
         st.header("📂 Core Tracked Repositories")
@@ -72,26 +71,28 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints and chunking repository readme content..."):
                 try:
+                    # FIXED ENDPOINT URL FOR CALIBRATION
                     response = requests.get(f"https://github.com{username}/repos")
+                    
                     if response.status_code == 200:
                         repos = response.json()
                         st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
                         
                         # Display parsed repos to user instantly
-                        for repo in repos[:3]: # Display top 3 for visual preview space
+                        for repo in repos[:5]: # Display top 5 for visual preview space
                             with st.container(border=True):
                                 st.subheader(repo['name'])
                                 st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 🛠️ {repo['language'] or 'Markdown'}")
                                 st.write(repo['description'] or "No public description provided.")
                                 
-                                # Simulating background vector parsing structure
+                                # Simulating background vector parsing structure from default branch
                                 readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{repo['default_branch']}/README.md"
                                 readme_req = requests.get(readme_url)
                                 if readme_req.status_code == 200:
                                     text_slices = chunk_text_data(readme_req.text)
                                     st.caption(f"⚙️ Processed RAG Context: Split readme into {len(text_slices)} vector tokens.")
                     else:
-                        st.error("Failed to query data from the GitHub API. Confirm your account profile exists.")
+                        st.error(f"Failed to query data from the GitHub API. Status Code: {response.status_code}")
                 except Exception as e:
                     st.error(f"System sync connection error occurred: {str(e)}")
         else:
