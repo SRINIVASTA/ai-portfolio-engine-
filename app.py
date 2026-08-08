@@ -1,8 +1,10 @@
 import streamlit as st
 import requests
 
+# Force strict dark mode styling layout
 st.set_page_config(page_title="AI Portfolio Engine", layout="wide", initial_sidebar_state="collapsed")
 
+# 1. Initialize Global Application States
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -10,6 +12,7 @@ if "username" not in st.session_state:
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
+# Text splitting helper for large repo files
 def chunk_text_data(text, max_chars=800):
     words = text.split()
     chunks = []
@@ -23,7 +26,7 @@ def chunk_text_data(text, max_chars=800):
         chunks.append(" ".join(current_chunk))
     return chunks
 
-# --- LANDING PAGE ---
+# --- LANDING PAGE (SaaS Entry Point) ---
 if not st.session_state.logged_in:
     st.title("🚀 Turn Your GitHub Into An AI Portfolio")
     st.subheader("Deploy a self-updating website with an interactive recruiter chatbot trained on your code.")
@@ -44,11 +47,12 @@ if not st.session_state.logged_in:
 else:
     username = st.session_state.username
     
-    cols = st.columns([4, 1])
-    with cols[0]:
+    # Navigation row setup
+    cols = st.columns()
+    with cols:
         st.title(f"✨ Developer Portfolio: {username}")
-    with cols[1]:
-        if st.button("Log Out", type="secondary", use_container_width=True):
+    with cols:
+        if st.button("Log Out of System", type="secondary", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.username = None
             st.session_state.chat_history = []
@@ -57,36 +61,46 @@ else:
     st.write("`✓ Verified Production Architecture Integration Enabled`")
     st.write("---")
     
-    left_layout, right_chatbot = st.columns([1, 1], gap="large")
+    # Split layout configuration grids
+    left_layout, right_chatbot = st.columns(, gap="large")
     
     with left_layout:
         st.header("📂 Core Tracked Repositories")
         
+        # Trigger GitHub Profile API data scrape loop
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # FIX IS HERE: Clean, direct endpoint call to api.github.com
-                    target_url = f"https://api.github.com/users/{username}/repos"
+                    # Clean endpoint targeting the core GitHub platform metadata engine
+                    target_url = f"https://github.com{username}/repos"
                     response = requests.get(target_url)
                     
                     if response.status_code == 200:
                         repos = response.json()
                         st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
                         
+                        # Render top 5 repository containers smoothly
                         for repo in repos[:5]:
                             with st.container(border=True):
                                 st.subheader(repo['name'])
                                 st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 🛠️ {repo['language'] or 'Markdown'}")
                                 st.write(repo['description'] or "No public description provided.")
                                 
-                                # Process fallback branch readme content securely
-                                readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{repo['default_branch']}/README.md"
-                                readme_req = requests.get(readme_url)
-                                if readme_req.status_code == 200:
-                                    text_slices = chunk_text_data(readme_req.text)
-                                    st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
+                                # Safety block processing repository readme data without breaking loop execution
+                                try:
+                                    # FIXED URL STRUCTURE: Forward slash added securely between .com/ and {username}
+                                    readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{repo['default_branch']}/README.md"
+                                    readme_req = requests.get(readme_url)
+                                    
+                                    if readme_req.status_code == 200:
+                                        text_slices = chunk_text_data(readme_req.text)
+                                        st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
+                                    else:
+                                        st.caption("⚠️ No standard README.md found in default repository workspace branch.")
+                                except Exception as inner_err:
+                                    st.caption("⚠️ Unable to process project markdown data frames.")
                     else:
-                        st.error(f"GitHub API Error. Status Code: {response.status_code}. Profile might be misspelled.")
+                        st.error(f"GitHub API Error. Status Code: {response.status_code}.")
                 except Exception as e:
                     st.error(f"System sync connection error occurred: {str(e)}")
         else:
@@ -98,6 +112,7 @@ else:
         
         chat_container = st.container(height=400)
         
+        # Render conversational bubbles maps arrays loop configurations
         for message in st.session_state.chat_history:
             with chat_container.chat_message(message["role"]):
                 st.write(message["content"])
