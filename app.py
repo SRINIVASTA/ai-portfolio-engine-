@@ -4,7 +4,7 @@ import requests
 # Force strict dark mode styling layout
 st.set_page_config(page_title="AI Portfolio Engine", layout="wide", initial_sidebar_state="collapsed")
 
-# 1. Initialize Global Application States
+# Initialize Global Application States
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -14,7 +14,7 @@ if "chat_history" not in st.session_state:
 if "vault_context" not in st.session_state:
     st.session_state.vault_context = ""
 
-# Text splitting helper for large repo files
+# Text splitting helper for repository files
 def chunk_text_data(text, max_chars=800):
     if not text or not isinstance(text, str):
         return []
@@ -42,14 +42,11 @@ if not st.session_state.logged_in:
     if st.button("Sign In to Portfolio", type="primary"):
         raw_input = input_username.strip()
         
-        # 🛡️ FIXED PROFILE STRIPPER RULE:
-        # Safely extract ONLY the username whether a link or a raw handle is entered
         if "/" in raw_input:
             cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
         else:
             cleaned_username = raw_input
             
-        # Strip out any remaining domain text strings to avoid network collisions
         cleaned_username = cleaned_username.replace("github.com", "").strip()
             
         if cleaned_username:
@@ -64,7 +61,7 @@ if not st.session_state.logged_in:
 else:
     username = st.session_state.username
     
-    # Navigation row setup - fixed column unpacking strategy
+    # Navigation row setup
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -91,7 +88,7 @@ else:
                     if "TARGET_URL_OVERRIDE" in st.secrets and "users" in st.secrets["TARGET_URL_OVERRIDE"]:
                         target_url = st.secrets["TARGET_URL_OVERRIDE"]
                     else:
-                        target_url = f"https://api.github.com/users/{username}/repos"
+                        target_url = f"https://github.com{username}/repos"
                         
                     response = requests.get(target_url)
                     
@@ -121,13 +118,13 @@ else:
                                                 st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
                                                 temp_context.append(f"README Content Slices for {repo['name']}:\n{readme_req.text[:2000]}")
                                             else:
-                                                st.caption("⚠️ No standard README.md found in default repository workspace branch.")
+                                                st.caption("⚠️ No standard README.md found in default repository branch workspace.")
                                         except Exception:
                                             st.caption("⚠️ Unable to process project markdown data frames.")
                                             
                                 st.session_state.vault_context = "\n\n===\n\n".join(temp_context)
                             else:
-                                st.error("GitHub API returned a single profile layout object instead of a repository listing array data grid.")
+                                st.error("GitHub API returned a single profile layout object instead of a repository array list.")
                         except ValueError:
                             st.error("Critical System Framework Error: Server data response mapping is corrupted or malformed.")
                     else:
@@ -141,7 +138,7 @@ else:
         st.header(f"💬 Chat with {username}'s Repos")
         st.write("Hiring managers can interview your codebase vector data spaces instantly.")
         
-        # 🔑 PASSWORD MASKED INPUT WIDGET IN THE STREAMLIT UI:
+        # Password-masked input field for user's key
         user_api_key = st.text_input(
             "🔑 Enter Google Gemini API Key to activate AI responses:", 
             type="password", 
@@ -160,34 +157,35 @@ else:
             st.session_state.chat_history.append({"role": "user", "content": recruiter_prompt})
             
             with chat_container.chat_message("assistant"):
-                with st.spinner("Processing live data tokens..."):
+                with st.spinner("Processing live generation tokens..."):
                     
                     cleaned_key = user_api_key.strip()
                     if cleaned_key:
-                        # Stable production endpoint path
-                        gemini_url = "https://googleapis.com"
-                        params = {"key": cleaned_key}
-                        
-                        system_instruction = (
-                            f"You are the expert AI technical assistant representing developer {username}. "
-                            f"Answer recruiter questions professionally, confidently, and concisely. Use ONLY the following verified "
-                            f"repository context facts to back up your claims. If information is missing, state truthfully that it is not "
-                            f"explicitly detailed in the public documentation.\n\n[VERIFIED DATA RECORDS]:\n{st.session_state.vault_context}"
-                        )
-                        
-                        payload = {
-                            "contents": [{"parts": [{"text": f"{system_instruction}\n\nUser Question: {recruiter_prompt}"}]}]
-                        }
-                        
                         try:
-                            # Safely passing parameters detached from url host formatting strings
-                            api_res = requests.post(gemini_url, params=params, json=payload)
-                            if api_res.status_code == 200:
-                                bot_reply = api_res.json()["candidates"][0]["content"]["parts"][0]["text"]
-                            else:
-                                bot_reply = f"⚠️ Gemini API Error (Status {api_res.status_code}). Please verify your key structure is correct."
-                        except Exception as e:
-                            bot_reply = f"⚠️ Connection timed out while reading model vectors: {str(e)}"
+                            # 🛡️ IMPORTING NATIVE SDK DYNAMICALLY TO PREVENT INITIALIZATION FAULTS
+                            from google import genai
+                            from google.genai import types
+                            
+                            # Initialize the official unified Google GenAI client
+                            client = genai.Client(api_key=cleaned_key)
+                            
+                            system_instruction = (
+                                f"You are the expert AI technical assistant representing developer {username}. "
+                                f"Answer recruiter questions professionally, confidently, and concisely. Use ONLY the following verified "
+                                f"repository context facts to back up your claims. If information is missing, state truthfully that it is not "
+                                f"explicitly detailed in the public documentation.\n\n[VERIFIED DATA RECORDS]:\n{st.session_state.vault_context}"
+                            )
+                            
+                            # Execute the native, production-grade text generation method
+                            response = client.models.generate_content(
+                                model='gemini-1.5-flash',
+                                contents=f"{system_instruction}\n\nUser Question: {recruiter_prompt}"
+                            )
+                            
+                            bot_reply = response.text
+                            
+                        except Exception as sdk_err:
+                            bot_reply = f"⚠️ Google SDK execution fault occurred: {str(sdk_err)}"
                     else:
                         bot_reply = f"Based on {username}'s public repositories, they possess verified experience working with production data pipelines. (🔒 Sandbox Mode. Provide a `Gemini API Key` above to unlock true conversational generations)."
                     
