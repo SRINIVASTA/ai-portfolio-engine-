@@ -61,7 +61,7 @@ if not st.session_state.logged_in:
 else:
     username = st.session_state.username
     
-    # Navigation row setup
+    # Navigation row setup - fixed column unpacking strategy
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -110,7 +110,7 @@ else:
                                         
                                         try:
                                             default_branch = repo.get('default_branch', 'main')
-                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
                                             readme_req = requests.get(readme_url)
                                             
                                             if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
@@ -118,13 +118,13 @@ else:
                                                 st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
                                                 temp_context.append(f"README Content Slices for {repo['name']}:\n{readme_req.text[:2000]}")
                                             else:
-                                                st.caption("⚠️ No standard README.md found in default repository branch workspace.")
+                                                st.caption("⚠️ No standard README.md found in default repository workspace branch.")
                                         except Exception:
                                             st.caption("⚠️ Unable to process project markdown data frames.")
                                             
                                 st.session_state.vault_context = "\n\n===\n\n".join(temp_context)
                             else:
-                                st.error("GitHub API returned a single profile layout object instead of a repository array list.")
+                                st.error("GitHub API returned a single profile layout object instead of a repository listing array data grid.")
                         except ValueError:
                             st.error("Critical System Framework Error: Server data response mapping is corrupted or malformed.")
                     else:
@@ -162,12 +162,12 @@ else:
                     cleaned_key = user_api_key.strip()
                     if cleaned_key:
                         try:
-                            # 🛡️ IMPORTING NATIVE SDK DYNAMICALLY TO PREVENT INITIALIZATION FAULTS
+                            # Import core SDK modules dynamically to ensure initialization safety
                             from google import genai
                             from google.genai import types
                             
-                            # Initialize the official unified Google GenAI client
-                            client = genai.Client(api_key=cleaned_key)
+                            # FIXED: Explicitly forcing client execution requests into stable v1 endpoint layers
+                            client = genai.Client(api_key=cleaned_key, http_options={'api_version': 'v1'})
                             
                             system_instruction = (
                                 f"You are the expert AI technical assistant representing developer {username}. "
@@ -176,7 +176,6 @@ else:
                                 f"explicitly detailed in the public documentation.\n\n[VERIFIED DATA RECORDS]:\n{st.session_state.vault_context}"
                             )
                             
-                            # Execute the native, production-grade text generation method
                             response = client.models.generate_content(
                                 model='gemini-1.5-flash',
                                 contents=f"{system_instruction}\n\nUser Question: {recruiter_prompt}"
