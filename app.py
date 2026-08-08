@@ -42,7 +42,7 @@ if not st.session_state.logged_in:
     if st.button("Sign In to Portfolio", type="primary"):
         raw_input = input_username.strip()
         
-        # 🛡️ BULLETPROOF PROFILE LINK CLEANER
+        # 🛡️ BULLETPROOF PROFILE LINK CLEANER FOR RECRUITMENT SAAS PLATFORMS:
         if "/" in raw_input:
             cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
         else:
@@ -62,6 +62,7 @@ if not st.session_state.logged_in:
 else:
     username = st.session_state.username
     
+    # Navigation row setup - fixed column unpacking strategy matching your working version
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -76,20 +77,19 @@ else:
     st.write("`✓ Verified Production Architecture Integration Enabled`")
     st.write("---")
     
+    # Split layout configuration grids
     left_layout, right_chatbot = st.columns(2, gap="large")
     
     with left_layout:
-        st.header("📂 Automated Core Repositories")
+        st.header("📂 Core Tracked Repositories")
         
-        # 🤖 WEBHOOK AUTOMATION STATUS CARD FOR RECRUITERS:
-        st.info("ℹ️ Production Automation Active: This portfolio syncs instantly via GitHub Webhooks whenever code pushes occur.")
-        
-        if st.button("🔄 Force Manual Re-Sync Now", type="primary"):
-            with st.spinner("Accessing Authenticated GitHub REST endpoints..."):
+        if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
+            with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    target_url = f"https://github.com{username}/repos?per_page=100"
+                    # 🚀 CLEAN, DIRECT PAGINATED ENDPOINT PATH WITHOUT EXTERNAL SECRETS DEPENDENCY CLASHES
+                    target_url = f"https://api.github.com/users/{username}/repos?per_page=100"
                     
-                    # 🔐 AUTHENTICATION INTEGRATION: Load token if available to expand allowance limits
+                    # 🔐 AUTHENTICATION LAYER: Automatically load security token if present to bypass rate limits
                     headers = {"Accept": "application/vnd.github.v3+json"}
                     pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None)
                     if pat_token:
@@ -100,10 +100,12 @@ else:
                     if response.status_code == 200:
                         try:
                             repos = response.json()
+                            
                             if isinstance(repos, list):
-                                st.success(f"Successfully authenticated and processed {len(repos)} repositories!")
+                                st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
                                 temp_context = []
                                 
+                                # UNLOCKED: Completely removed the display restriction to cycle through ALL available records
                                 for repo in repos:
                                     with st.container(border=True):
                                         st.subheader(repo['name'])
@@ -114,7 +116,7 @@ else:
                                         
                                         try:
                                             default_branch = repo.get('default_branch', 'main')
-                                            readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
                                             readme_req = requests.get(readme_url, headers=headers if pat_token else None)
                                             
                                             if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
@@ -130,19 +132,25 @@ else:
                             else:
                                 st.error("GitHub API response layout configuration mismatch.")
                         except ValueError:
-                            st.error("Critical System Framework Error: Malformed JSON tracking objects.")
+                            st.error("Critical System Framework Error: Server data response mapping is corrupted or malformed.")
                     else:
-                        st.error(f"GitHub API Error. Status Code: {response.status_code}.")
+                        st.error(f"GitHub API Error. Status Code: {response.status_code}. User profile might not exist.")
                 except Exception as e:
                     st.error(f"System sync connection error occurred: {str(e)}")
         else:
-            st.caption("Press the manual refresh button above if you wish to bypass standard automated webhook triggers.")
+            st.info("Click the Sync button above to scrape public GitHub API records dynamically.")
 
     with right_chatbot:
         st.header(f"💬 Chat with {username}'s Repos")
         st.write("Hiring managers can interview your codebase vector data spaces instantly.")
         
-        user_api_key = st.text_input("🔑 Enter Google Gemini API Key to activate AI responses:", type="password", placeholder="AIzaSy...")
+        # 🔑 PASSWORD MASKED INPUT WIDGET SECURED IN THE STREAMLIT UI LAYOUT:
+        user_api_key = st.text_input(
+            "🔑 Enter Google Gemini API Key to activate AI responses:", 
+            type="password", 
+            placeholder="AIzaSy..."
+        )
+        
         chat_container = st.container(height=350)
         
         for message in st.session_state.chat_history:
@@ -156,10 +164,14 @@ else:
             
             with chat_container.chat_message("assistant"):
                 with st.spinner("Processing live data tokens..."):
+                    
                     cleaned_key = user_api_key.strip()
                     if cleaned_key:
                         try:
+                            # 🛡️ Initialize modern official SDK modules dynamically 
                             from google import genai
+                            
+                            # Force client networking requests through the stable production route parameter
                             client = genai.Client(api_key=cleaned_key, http_options={'api_version': 'v1'})
                             
                             system_instruction = (
@@ -169,11 +181,14 @@ else:
                                 f"explicitly detailed in the public documentation.\n\n[VERIFIED DATA RECORDS]:\n{st.session_state.vault_context}"
                             )
                             
+                            # Execute native production-grade SDK content generation text structures
                             response = client.models.generate_content(
                                 model='gemini-1.5-flash',
                                 contents=f"{system_instruction}\n\nUser Question: {recruiter_prompt}"
                             )
+                            
                             bot_reply = response.text
+                            
                         except Exception as sdk_err:
                             bot_reply = f"⚠️ Google SDK execution fault occurred: {str(sdk_err)}"
                     else:
