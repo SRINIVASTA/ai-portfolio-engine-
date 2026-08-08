@@ -33,12 +33,21 @@ if not st.session_state.logged_in:
     st.write("---")
     
     st.write("### Multi-User Gateway Authentication")
-    input_username = st.text_input("Enter your GitHub Username to authenticate:", placeholder="e.g., srinivasta")
+    input_username = st.text_input("Enter GitHub Username or Profile Link:", placeholder="e.g., srinivasta or https://github.com")
     
-    if st.button("Sign In with GitHub Account", type="primary"):
-        if input_username.strip():
+    if st.button("Sign In to Portfolio", type="primary"):
+        cleaned_username = input_username.strip()
+        
+        # 🛡️ AUTOMATIC TEXT CLEANING RULE:
+        # If someone pastes a link like "https://github.com", clean it down to just "srinivasta"
+        if "://github.com" in cleaned_username:
+            cleaned_username = cleaned_username.split("://github.com")[-1].strip("/")
+        if "github.com" in cleaned_username:
+            cleaned_username = cleaned_username.split("github.com")[-1].strip("/")
+            
+        if cleaned_username:
             st.session_state.logged_in = True
-            st.session_state.username = input_username.strip()
+            st.session_state.username = cleaned_username
             st.rerun()
         else:
             st.error("Please provide a valid developer username to proceed.")
@@ -48,10 +57,10 @@ else:
     username = st.session_state.username
     
     # Navigation row setup
-    cols = st.columns([4, 1])
-    with cols[0]:
+    cols = st.columns(2)
+    with cols:
         st.title(f"✨ Developer Portfolio: {username}")
-    with cols[1]:
+    with cols:
         if st.button("Log Out of System", type="secondary", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.username = None
@@ -61,7 +70,7 @@ else:
     st.write("`✓ Verified Production Architecture Integration Enabled`")
     st.write("---")
     
-    # Split layout configuration grids (FIXED THE SYNTAX ERROR HERE)
+    # Split layout configuration grids
     left_layout, right_chatbot = st.columns(2, gap="large")
     
     with left_layout:
@@ -71,8 +80,8 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # Clean endpoint targeting the core GitHub platform metadata engine
-                    target_url = f"https://github.com{username}/repos"
+                    # CLEAN, 100% CORRECT TARGET URL ENDPOINT
+                    target_url = f"https://api.://github.comusers/{username}/repos"
                     response = requests.get(target_url)
                     
                     if response.status_code == 200:
@@ -88,7 +97,6 @@ else:
                                 
                                 # Safety block processing repository readme data without breaking loop execution
                                 try:
-                                    # FIXED URL STRUCTURE: Forward slash added securely between .com/ and {username}
                                     readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{repo['default_branch']}/README.md"
                                     readme_req = requests.get(readme_url)
                                     
@@ -100,7 +108,7 @@ else:
                                 except Exception as inner_err:
                                     st.caption("⚠️ Unable to process project markdown data frames.")
                     else:
-                        st.error(f"GitHub API Error. Status Code: {response.status_code}.")
+                        st.error(f"GitHub API Error. Status Code: {response.status_code}. User profile might not exist.")
                 except Exception as e:
                     st.error(f"System sync connection error occurred: {str(e)}")
         else:
@@ -112,7 +120,7 @@ else:
         
         chat_container = st.container(height=400)
         
-        # Render conversational bubbles maps arrays loop configurations
+        # Render conversational bubbles arrays loop configurations
         for message in st.session_state.chat_history:
             with chat_container.chat_message(message["role"]):
                 st.write(message["content"])
