@@ -41,8 +41,8 @@ if not st.session_state.logged_in:
         cleaned_username = input_username.strip()
         
         # AUTOMATIC TEXT CLEANING RULE
-        if "://github.com" in cleaned_username:
-            cleaned_username = cleaned_username.split("://github.com")[-1].strip("/")
+        if "github.com/" in cleaned_username:
+            cleaned_username = cleaned_username.split("github.com/")[-1].strip("/")
         if "github.com" in cleaned_username:
             cleaned_username = cleaned_username.split("github.com")[-1].strip("/")
             
@@ -61,7 +61,7 @@ else:
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
-    with col2:
+    with cols2 if 'cols2' in locals() else col2:
         if st.button("Log Out of System", type="secondary", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.username = None
@@ -81,41 +81,46 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # THE BYPASS INJECTION SWITCH FOR STABILITY
-                    if "TARGET_URL_OVERRIDE" in st.secrets:
+                    # FIX: Read the secrets override ONLY if it contains a valid /repos endpoint list
+                    if "TARGET_URL_OVERRIDE" in st.secrets and "users" in st.secrets["TARGET_URL_OVERRIDE"]:
                         target_url = st.secrets["TARGET_URL_OVERRIDE"]
                     else:
-                        target_url = f"https://api.://github.comusers/{username}/repos"
+                        target_url = f"https://api.github.com/users/{username}/repos"
                         
                     response = requests.get(target_url)
                     
                     if response.status_code == 200:
                         try:
                             repos = response.json()
-                            st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
                             
-                            # Render top 5 repository containers smoothly
-                            for repo in repos[:5]:
-                                with st.container(border=True):
-                                    st.subheader(repo['name'])
-                                    st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 🛠️ {repo['language'] or 'Markdown'}")
-                                    st.write(repo['description'] or "No public description provided.")
-                                    
-                                    # Defends markdown file extraction pipeline against random string structural issues
-                                    try:
-                                        default_branch = repo.get('default_branch', 'main')
-                                        readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
-                                        readme_req = requests.get(readme_url)
+                            # Type checking to guarantee response payload is a iterable sequence list
+                            if isinstance(repos, list):
+                                st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
+                                
+                                # Render top 5 repository containers smoothly
+                                for repo in repos[:5]:
+                                    with st.container(border=True):
+                                        st.subheader(repo['name'])
+                                        st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 🛠️ {repo['language'] or 'Markdown'}")
+                                        st.write(repo['description'] or "No public description provided.")
                                         
-                                        if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
-                                            text_slices = chunk_text_data(readme_req.text)
-                                            st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
-                                        else:
-                                            st.caption("⚠️ No standard README.md found in default repository workspace branch.")
-                                    except Exception:
-                                        st.caption("⚠️ Unable to process project markdown data frames.")
+                                        # Processes repository markdown contents securely using raw files paths
+                                        try:
+                                            default_branch = repo.get('default_branch', 'main')
+                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_req = requests.get(readme_url)
+                                            
+                                            if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
+                                                text_slices = chunk_text_data(readme_req.text)
+                                                st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
+                                            else:
+                                                st.caption("⚠️ No standard README.md found in default repository branch workspace.")
+                                        except Exception:
+                                            st.caption("⚠️ Unable to process project markdown data frames.")
+                            else:
+                                st.error("GitHub API returned a single profile object instead of a repository listing array layout.")
                         except ValueError:
-                            st.error("Critical System Framework Error: Server data response is corrupted or malformed.")
+                            st.error("Critical System Framework Error: Server data response is corrupted or malformed JSON.")
                     else:
                         st.error(f"GitHub API Error. Status Code: {response.status_code}. User profile might not exist.")
                 except Exception as e:
