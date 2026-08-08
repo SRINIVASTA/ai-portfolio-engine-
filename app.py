@@ -4,7 +4,7 @@ import requests
 # Force strict dark mode styling layout
 st.set_page_config(page_title="AI Portfolio Engine", layout="wide", initial_sidebar_state="collapsed")
 
-# Initialize Global Application States
+# 1. Initialize Global Application States
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -14,7 +14,7 @@ if "chat_history" not in st.session_state:
 if "vault_context" not in st.session_state:
     st.session_state.vault_context = ""
 
-# Text splitting helper for repository files
+# Text splitting helper for large repo files
 def chunk_text_data(text, max_chars=800):
     if not text or not isinstance(text, str):
         return []
@@ -40,14 +40,13 @@ if not st.session_state.logged_in:
     input_username = st.text_input("Enter GitHub Username or Profile Link:", placeholder="e.g., srinivasta or https://github.com")
     
     if st.button("Sign In to Portfolio", type="primary"):
-        raw_input = input_username.strip()
+        cleaned_username = input_username.strip()
         
-        if "/" in raw_input:
-            cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
-        else:
-            cleaned_username = raw_input
-            
-        cleaned_username = cleaned_username.replace("github.com", "").strip()
+        # AUTOMATIC TEXT CLEANING RULE
+        if "github.com/" in cleaned_username:
+            cleaned_username = cleaned_username.split("github.com/")[-1].strip("/")
+        if "github.com" in cleaned_username:
+            cleaned_username = cleaned_username.split("github.com")[-1].strip("/")
             
         if cleaned_username:
             st.session_state.logged_in = True
@@ -61,7 +60,7 @@ if not st.session_state.logged_in:
 else:
     username = st.session_state.username
     
-    # Navigation row setup - fixed column unpacking strategy
+    # Navigation row setup - fixed column unpacking strategy matching your working version
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -85,10 +84,11 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
+                    # THE SECURE BYPASS INJECTION SWITCH THAT SOLVED YOUR CONNECTION TYPO ERRORS:
                     if "TARGET_URL_OVERRIDE" in st.secrets and "users" in st.secrets["TARGET_URL_OVERRIDE"]:
                         target_url = st.secrets["TARGET_URL_OVERRIDE"]
                     else:
-                        target_url = f"https://github.com{username}/repos"
+                        target_url = f"https://api.github.com/users/{username}/repos"
                         
                     response = requests.get(target_url)
                     
@@ -110,7 +110,7 @@ else:
                                         
                                         try:
                                             default_branch = repo.get('default_branch', 'main')
-                                            readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
                                             readme_req = requests.get(readme_url)
                                             
                                             if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
@@ -138,7 +138,7 @@ else:
         st.header(f"💬 Chat with {username}'s Repos")
         st.write("Hiring managers can interview your codebase vector data spaces instantly.")
         
-        # Password-masked input field for user's key
+        # 🔑 PASSWORD MASKED INPUT WIDGET SECURED IN THE FRONTEND UI:
         user_api_key = st.text_input(
             "🔑 Enter Google Gemini API Key to activate AI responses:", 
             type="password", 
@@ -162,11 +162,10 @@ else:
                     cleaned_key = user_api_key.strip()
                     if cleaned_key:
                         try:
-                            # Import core SDK modules dynamically to ensure initialization safety
+                            # 🛡️ Initialize official modern unified SDK client 
                             from google import genai
-                            from google.genai import types
                             
-                            # FIXED: Explicitly forcing client execution requests into stable v1 endpoint layers
+                            # Force client networking requests through the stable production route parameter
                             client = genai.Client(api_key=cleaned_key, http_options={'api_version': 'v1'})
                             
                             system_instruction = (
@@ -176,6 +175,7 @@ else:
                                 f"explicitly detailed in the public documentation.\n\n[VERIFIED DATA RECORDS]:\n{st.session_state.vault_context}"
                             )
                             
+                            # Execute native production-grade SDK content generation text structures
                             response = client.models.generate_content(
                                 model='gemini-1.5-flash',
                                 contents=f"{system_instruction}\n\nUser Question: {recruiter_prompt}"
