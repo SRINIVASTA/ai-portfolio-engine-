@@ -42,12 +42,14 @@ if not st.session_state.logged_in:
     if st.button("Sign In to Portfolio", type="primary"):
         raw_input = input_username.strip()
         
-        # 🛡️ BULLETPROOF PROFILE LINK CLEANER
+        # 🛡️ FIXED PROFILE STRIPPER RULE:
+        # Safely extract ONLY the username whether a link or a raw handle is entered
         if "/" in raw_input:
             cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
         else:
             cleaned_username = raw_input
             
+        # Strip out any remaining domain text strings to avoid network collisions
         cleaned_username = cleaned_username.replace("github.com", "").strip()
             
         if cleaned_username:
@@ -89,7 +91,7 @@ else:
                     if "TARGET_URL_OVERRIDE" in st.secrets and "users" in st.secrets["TARGET_URL_OVERRIDE"]:
                         target_url = st.secrets["TARGET_URL_OVERRIDE"]
                     else:
-                        target_url = f"https://github.com{username}/repos"
+                        target_url = f"https://api.github.com/users/{username}/repos"
                         
                     response = requests.get(target_url)
                     
@@ -111,7 +113,7 @@ else:
                                         
                                         try:
                                             default_branch = repo.get('default_branch', 'main')
-                                            readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
                                             readme_req = requests.get(readme_url)
                                             
                                             if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
@@ -162,7 +164,7 @@ else:
                     
                     cleaned_key = user_api_key.strip()
                     if cleaned_key:
-                        # UPDATED TO STABLE V1 PRODUCTION INSTANCE ENDPOINT:
+                        # Stable production endpoint path
                         gemini_url = "https://googleapis.com"
                         params = {"key": cleaned_key}
                         
@@ -178,6 +180,7 @@ else:
                         }
                         
                         try:
+                            # Safely passing parameters detached from url host formatting strings
                             api_res = requests.post(gemini_url, params=params, json=payload)
                             if api_res.status_code == 200:
                                 bot_reply = api_res.json()["candidates"][0]["content"]["parts"][0]["text"]
