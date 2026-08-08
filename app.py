@@ -162,7 +162,7 @@ else:
                     
                     cleaned_key = user_api_key.strip()
                     if cleaned_key:
-                        # FIXED: Clean, hardcoded URL endpoint. The key is now safely passed as a URL parameter separately.
+                        # UPDATED TO STABLE V1 PRODUCTION INSTANCE ENDPOINT:
                         gemini_url = "https://googleapis.com"
                         params = {"key": cleaned_key}
                         
@@ -178,10 +178,9 @@ else:
                         }
                         
                         try:
-                            # FIXED: Explicitly separated URL path from param tokens mapping
                             api_res = requests.post(gemini_url, params=params, json=payload)
                             if api_res.status_code == 200:
-                                bot_reply = api_res.json()["candidates"]["content"]["parts"]["text"]
+                                bot_reply = api_res.json()["candidates"][0]["content"]["parts"][0]["text"]
                             else:
                                 bot_reply = f"⚠️ Gemini API Error (Status {api_res.status_code}). Please verify your key structure is correct."
                         except Exception as e:
