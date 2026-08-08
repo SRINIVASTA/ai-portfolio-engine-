@@ -40,13 +40,17 @@ if not st.session_state.logged_in:
     input_username = st.text_input("Enter GitHub Username or Profile Link:", placeholder="e.g., srinivasta or https://github.com")
     
     if st.button("Sign In to Portfolio", type="primary"):
-        cleaned_username = input_username.strip()
+        raw_input = input_username.strip()
         
-        # AUTOMATIC TEXT CLEANING RULE
-        if "github.com/" in cleaned_username:
-            cleaned_username = cleaned_username.split("github.com/")[-1].strip("/")
-        if "github.com" in cleaned_username:
-            cleaned_username = cleaned_username.split("github.com")[-1].strip("/")
+        # 🛡️ BULLETPROOF PROFILE LINK CLEANER
+        if "/" in raw_input:
+            # Extract only the last word if it's a full link path
+            cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
+        else:
+            cleaned_username = raw_input
+            
+        # Strip out any lingering domain text strings to avoid network collisions
+        cleaned_username = cleaned_username.replace("github.com", "").strip()
             
         if cleaned_username:
             st.session_state.logged_in = True
@@ -56,11 +60,12 @@ if not st.session_state.logged_in:
             st.rerun()
         else:
             st.error("Please provide a valid developer username to proceed.")
+
 # --- PORTFOLIO DASHBOARD ---
 else:
     username = st.session_state.username
     
-    # Navigation row setup - fixed column unpacking strategy
+    # Navigation row setup
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -84,11 +89,8 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    if "TARGET_URL_OVERRIDE" in st.secrets and "users" in st.secrets["TARGET_URL_OVERRIDE"]:
-                        target_url = st.secrets["TARGET_URL_OVERRIDE"]
-                    else:
-                        # UNLOCKED: Added per_page=100 parameter parameters string mapping rules
-                        target_url = f"https://github.com{username}/repos?per_page=100"
+                    # CLEAN DIRECT ENDPOINT PATH WITHOUT EXTERNAL SECRETS DEPENDENCY COLLISION
+                    target_url = f"https://github.com{username}/repos?per_page=100"
                         
                     response = requests.get(target_url)
                     
@@ -100,7 +102,7 @@ else:
                                 st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
                                 temp_context = []
                                 
-                                # UNLOCKED: Removed the [:5] constraint row item splitter limit to process ALL items
+                                # Render all repositories cleanly inside the container loop
                                 for repo in repos:
                                     with st.container(border=True):
                                         st.subheader(repo['name'])
@@ -139,7 +141,7 @@ else:
         st.header(f"💬 Chat with {username}'s Repos")
         st.write("Hiring managers can interview your codebase vector data spaces instantly.")
         
-        # Password-masked input field for user's key
+        # 🔑 PASSWORD MASKED INPUT WIDGET IN THE STREAMLIT UI:
         user_api_key = st.text_input(
             "🔑 Enter Google Gemini API Key to activate AI responses:", 
             type="password", 
@@ -185,6 +187,7 @@ else:
                             bot_reply = f"⚠️ Google SDK execution fault occurred: {str(sdk_err)}"
                     else:
                         bot_reply = f"Based on {username}'s public repositories, they possess verified experience working with production data pipelines. (🔒 Sandbox Mode. Provide a `Gemini API Key` above to unlock true conversational generations)."
+                    
                     
                     st.write(bot_reply)
             st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
