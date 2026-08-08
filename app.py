@@ -42,14 +42,12 @@ if not st.session_state.logged_in:
     if st.button("Sign In to Portfolio", type="primary"):
         raw_input = input_username.strip()
         
-        # 🛡️ BULLETPROOF PROFILE LINK CLEANER
+        # 🛡️ BULLETPROOF PROFILE LINK CLEANER FOR JOB HUNTING:
         if "/" in raw_input:
-            # Extract only the last word if it's a full link path
             cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
         else:
             cleaned_username = raw_input
             
-        # Strip out any lingering domain text strings to avoid network collisions
         cleaned_username = cleaned_username.replace("github.com", "").strip()
             
         if cleaned_username:
@@ -60,12 +58,11 @@ if not st.session_state.logged_in:
             st.rerun()
         else:
             st.error("Please provide a valid developer username to proceed.")
-
 # --- PORTFOLIO DASHBOARD ---
 else:
     username = st.session_state.username
     
-    # Navigation row setup
+    # Navigation row setup - fixed column unpacking strategy matching your working version
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -89,8 +86,8 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # CLEAN DIRECT ENDPOINT PATH WITHOUT EXTERNAL SECRETS DEPENDENCY COLLISION
-                    target_url = f"https://github.com{username}/repos?per_page=100"
+                    # 🚀 CLEAN DIRECT PAGINATED ENDPOINT PATH WITHOUT EXTERNAL SECRETS INTERFERENCE
+                    target_url = f"https://api.github.com/users/{username}/repos?per_page=100"
                         
                     response = requests.get(target_url)
                     
@@ -102,7 +99,7 @@ else:
                                 st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
                                 temp_context = []
                                 
-                                # Render all repositories cleanly inside the container loop
+                                # UNLOCKED: Removed the [:5] slice parameter to render ALL public repositories
                                 for repo in repos:
                                     with st.container(border=True):
                                         st.subheader(repo['name'])
@@ -113,7 +110,7 @@ else:
                                         
                                         try:
                                             default_branch = repo.get('default_branch', 'main')
-                                            readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
                                             readme_req = requests.get(readme_url)
                                             
                                             if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
@@ -141,7 +138,7 @@ else:
         st.header(f"💬 Chat with {username}'s Repos")
         st.write("Hiring managers can interview your codebase vector data spaces instantly.")
         
-        # 🔑 PASSWORD MASKED INPUT WIDGET IN THE STREAMLIT UI:
+        # 🔑 PASSWORD MASKED INPUT WIDGET SECURED IN THE FRONTEND UI:
         user_api_key = st.text_input(
             "🔑 Enter Google Gemini API Key to activate AI responses:", 
             type="password", 
@@ -165,8 +162,10 @@ else:
                     cleaned_key = user_api_key.strip()
                     if cleaned_key:
                         try:
+                            # 🛡️ Initialize official modern unified SDK client 
                             from google import genai
                             
+                            # Force client networking requests through the stable production route parameter
                             client = genai.Client(api_key=cleaned_key, http_options={'api_version': 'v1'})
                             
                             system_instruction = (
@@ -176,6 +175,7 @@ else:
                                 f"explicitly detailed in the public documentation.\n\n[VERIFIED DATA RECORDS]:\n{st.session_state.vault_context}"
                             )
                             
+                            # Execute native production-grade SDK content generation text structures
                             response = client.models.generate_content(
                                 model='gemini-1.5-flash',
                                 contents=f"{system_instruction}\n\nUser Question: {recruiter_prompt}"
@@ -187,7 +187,6 @@ else:
                             bot_reply = f"⚠️ Google SDK execution fault occurred: {str(sdk_err)}"
                     else:
                         bot_reply = f"Based on {username}'s public repositories, they possess verified experience working with production data pipelines. (🔒 Sandbox Mode. Provide a `Gemini API Key` above to unlock true conversational generations)."
-                    
                     
                     st.write(bot_reply)
             st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
