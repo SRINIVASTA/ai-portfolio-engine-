@@ -14,6 +14,8 @@ if "chat_history" not in st.session_state:
 
 # Text splitting helper for large repo files
 def chunk_text_data(text, max_chars=800):
+    if not text or not isinstance(text, str):
+        return []
     words = text.split()
     chunks = []
     current_chunk = []
@@ -39,8 +41,8 @@ if not st.session_state.logged_in:
         cleaned_username = input_username.strip()
         
         # AUTOMATIC TEXT CLEANING RULE
-        if "github.com/" in cleaned_username:
-            cleaned_username = cleaned_username.split("github.com/")[-1].strip("/")
+        if "://github.com" in cleaned_username:
+            cleaned_username = cleaned_username.split("://github.com")[-1].strip("/")
         if "github.com" in cleaned_username:
             cleaned_username = cleaned_username.split("github.com")[-1].strip("/")
             
@@ -79,37 +81,41 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # THE ULTIMATE BYPASS INJECTION BARRIER SWITCH
+                    # THE BYPASS INJECTION SWITCH FOR STABILITY
                     if "TARGET_URL_OVERRIDE" in st.secrets:
                         target_url = st.secrets["TARGET_URL_OVERRIDE"]
                     else:
-                        target_url = f"https://github.com{username}/repos"
+                        target_url = f"https://api.://github.comusers/{username}/repos"
                         
                     response = requests.get(target_url)
                     
                     if response.status_code == 200:
-                        repos = response.json()
-                        st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
-                        
-                        # Render top 5 repository containers smoothly
-                        for repo in repos[:5]:
-                            with st.container(border=True):
-                                st.subheader(repo['name'])
-                                st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 🛠️ {repo['language'] or 'Markdown'}")
-                                st.write(repo['description'] or "No public description provided.")
-                                
-                                # Safety block processing repository readme data without breaking loop execution
-                                try:
-                                    readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{repo['default_branch']}/README.md"
-                                    readme_req = requests.get(readme_url)
+                        try:
+                            repos = response.json()
+                            st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
+                            
+                            # Render top 5 repository containers smoothly
+                            for repo in repos[:5]:
+                                with st.container(border=True):
+                                    st.subheader(repo['name'])
+                                    st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 🛠️ {repo['language'] or 'Markdown'}")
+                                    st.write(repo['description'] or "No public description provided.")
                                     
-                                    if readme_req.status_code == 200:
-                                        text_slices = chunk_text_data(readme_req.text)
-                                        st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
-                                    else:
-                                        st.caption("⚠️ No standard README.md found in default repository workspace branch.")
-                                except Exception as inner_err:
-                                    st.caption("⚠️ Unable to process project markdown data frames.")
+                                    # Defends markdown file extraction pipeline against random string structural issues
+                                    try:
+                                        default_branch = repo.get('default_branch', 'main')
+                                        readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
+                                        readme_req = requests.get(readme_url)
+                                        
+                                        if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
+                                            text_slices = chunk_text_data(readme_req.text)
+                                            st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
+                                        else:
+                                            st.caption("⚠️ No standard README.md found in default repository workspace branch.")
+                                    except Exception:
+                                        st.caption("⚠️ Unable to process project markdown data frames.")
+                        except ValueError:
+                            st.error("Critical System Framework Error: Server data response is corrupted or malformed.")
                     else:
                         st.error(f"GitHub API Error. Status Code: {response.status_code}. User profile might not exist.")
                 except Exception as e:
