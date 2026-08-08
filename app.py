@@ -39,7 +39,6 @@ if not st.session_state.logged_in:
         cleaned_username = input_username.strip()
         
         # 🛡️ AUTOMATIC TEXT CLEANING RULE:
-        # If someone pastes a link like "https://github.com", clean it down to just "srinivasta"
         if "://github.com" in cleaned_username:
             cleaned_username = cleaned_username.split("://github.com")[-1].strip("/")
         if "github.com" in cleaned_username:
@@ -56,11 +55,11 @@ if not st.session_state.logged_in:
 else:
     username = st.session_state.username
     
-    # Navigation row setup
-    cols = st.columns(2)
-    with cols:
+    # Navigation row setup (FIXED OBJECT UNPACKING BUG HERE)
+    col1, col2 = st.columns(2)
+    with col1:
         st.title(f"✨ Developer Portfolio: {username}")
-    with cols:
+    with col2:
         if st.button("Log Out of System", type="secondary", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.username = None
