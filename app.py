@@ -60,7 +60,7 @@ if not st.session_state.logged_in:
 else:
     username = st.session_state.username
     
-    # Navigation row setup - fixed column unpacking strategy matching your working version
+    # Navigation row setup - fixed column unpacking strategy
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -84,11 +84,11 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # THE SECURE BYPASS INJECTION SWITCH THAT SOLVED YOUR CONNECTION TYPO ERRORS:
                     if "TARGET_URL_OVERRIDE" in st.secrets and "users" in st.secrets["TARGET_URL_OVERRIDE"]:
                         target_url = st.secrets["TARGET_URL_OVERRIDE"]
                     else:
-                        target_url = f"https://api.github.com/users/{username}/repos"
+                        # UNLOCKED: Added per_page=100 parameter parameters string mapping rules
+                        target_url = f"https://github.com{username}/repos?per_page=100"
                         
                     response = requests.get(target_url)
                     
@@ -100,7 +100,8 @@ else:
                                 st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
                                 temp_context = []
                                 
-                                for repo in repos[:5]:
+                                # UNLOCKED: Removed the [:5] constraint row item splitter limit to process ALL items
+                                for repo in repos:
                                     with st.container(border=True):
                                         st.subheader(repo['name'])
                                         st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 🛠️ {repo['language'] or 'Markdown'}")
@@ -110,7 +111,7 @@ else:
                                         
                                         try:
                                             default_branch = repo.get('default_branch', 'main')
-                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
                                             readme_req = requests.get(readme_url)
                                             
                                             if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
@@ -138,7 +139,7 @@ else:
         st.header(f"💬 Chat with {username}'s Repos")
         st.write("Hiring managers can interview your codebase vector data spaces instantly.")
         
-        # 🔑 PASSWORD MASKED INPUT WIDGET SECURED IN THE FRONTEND UI:
+        # Password-masked input field for user's key
         user_api_key = st.text_input(
             "🔑 Enter Google Gemini API Key to activate AI responses:", 
             type="password", 
@@ -157,15 +158,13 @@ else:
             st.session_state.chat_history.append({"role": "user", "content": recruiter_prompt})
             
             with chat_container.chat_message("assistant"):
-                with st.spinner("Processing live generation tokens..."):
+                with st.spinner("Processing live data tokens..."):
                     
                     cleaned_key = user_api_key.strip()
                     if cleaned_key:
                         try:
-                            # 🛡️ Initialize official modern unified SDK client 
                             from google import genai
                             
-                            # Force client networking requests through the stable production route parameter
                             client = genai.Client(api_key=cleaned_key, http_options={'api_version': 'v1'})
                             
                             system_instruction = (
@@ -175,9 +174,8 @@ else:
                                 f"explicitly detailed in the public documentation.\n\n[VERIFIED DATA RECORDS]:\n{st.session_state.vault_context}"
                             )
                             
-                            # Execute native production-grade SDK content generation text structures
                             response = client.models.generate_content(
-                                model='gemini-2.5-flash',
+                                model='gemini-1.5-flash',
                                 contents=f"{system_instruction}\n\nUser Question: {recruiter_prompt}"
                             )
                             
