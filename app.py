@@ -177,7 +177,7 @@ else:
                             
                             # Execute native production-grade SDK content generation text structures
                             response = client.models.generate_content(
-                                model='gemini-1.5-flash',
+                                model='gemini-2.5-flash',
                                 contents=f"{system_instruction}\n\nUser Question: {recruiter_prompt}"
                             )
                             
