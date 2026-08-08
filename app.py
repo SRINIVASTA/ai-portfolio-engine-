@@ -55,7 +55,7 @@ if not st.session_state.logged_in:
 else:
     username = st.session_state.username
     
-    # Navigation row setup (FIXED OBJECT UNPACKING BUG HERE)
+    # Navigation row setup
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -79,8 +79,8 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # CLEAN, 100% CORRECT TARGET URL ENDPOINT
-                    target_url = f"https://api.://github.comusers/{username}/repos"
+                    # 100% CLEANED TARGET URL ENDPOINT
+                    target_url = f"https://github.com{username}/repos"
                     response = requests.get(target_url)
                     
                     if response.status_code == 200:
