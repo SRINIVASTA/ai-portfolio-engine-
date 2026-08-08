@@ -48,10 +48,10 @@ else:
     username = st.session_state.username
     
     # Navigation row setup
-    cols = st.columns()
-    with cols:
+    cols = st.columns([4, 1])
+    with cols[0]:
         st.title(f"✨ Developer Portfolio: {username}")
-    with cols:
+    with cols[1]:
         if st.button("Log Out of System", type="secondary", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.username = None
@@ -61,8 +61,8 @@ else:
     st.write("`✓ Verified Production Architecture Integration Enabled`")
     st.write("---")
     
-    # Split layout configuration grids
-    left_layout, right_chatbot = st.columns(, gap="large")
+    # Split layout configuration grids (FIXED THE SYNTAX ERROR HERE)
+    left_layout, right_chatbot = st.columns(2, gap="large")
     
     with left_layout:
         st.header("📂 Core Tracked Repositories")
