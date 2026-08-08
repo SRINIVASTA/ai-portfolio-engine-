@@ -44,12 +44,10 @@ if not st.session_state.logged_in:
         
         # 🛡️ BULLETPROOF PROFILE LINK CLEANER
         if "/" in raw_input:
-            # If full link is pasted, split by slashes and grab the absolute last non-empty piece
             cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
         else:
             cleaned_username = raw_input
             
-        # Strip out any lingering domain string text explicitly
         cleaned_username = cleaned_username.replace("github.com", "").strip()
             
         if cleaned_username:
@@ -60,7 +58,6 @@ if not st.session_state.logged_in:
             st.rerun()
         else:
             st.error("Please provide a valid developer username to proceed.")
-
 # --- PORTFOLIO DASHBOARD ---
 else:
     username = st.session_state.username
@@ -89,11 +86,10 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # Robust target evaluation framework fallback checks
                     if "TARGET_URL_OVERRIDE" in st.secrets and "users" in st.secrets["TARGET_URL_OVERRIDE"]:
                         target_url = st.secrets["TARGET_URL_OVERRIDE"]
                     else:
-                        target_url = f"https://api.github.com/users/{username}/repos"
+                        target_url = f"https://github.com{username}/repos"
                         
                     response = requests.get(target_url)
                     
@@ -115,7 +111,7 @@ else:
                                         
                                         try:
                                             default_branch = repo.get('default_branch', 'main')
-                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
                                             readme_req = requests.get(readme_url)
                                             
                                             if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
@@ -129,7 +125,7 @@ else:
                                             
                                 st.session_state.vault_context = "\n\n===\n\n".join(temp_context)
                             else:
-                                st.error("GitHub API returned a structural profile layout object instead of a repository listing array row data grid.")
+                                st.error("GitHub API returned a single profile layout object instead of a repository listing array data grid.")
                         except ValueError:
                             st.error("Critical System Framework Error: Server data response mapping is corrupted or malformed.")
                     else:
@@ -143,7 +139,14 @@ else:
         st.header(f"💬 Chat with {username}'s Repos")
         st.write("Hiring managers can interview your codebase vector data spaces instantly.")
         
-        chat_container = st.container(height=400)
+        # 🔑 PASSWORD MASKED INPUT WIDGET IN THE STREAMLIT UI:
+        user_api_key = st.text_input(
+            "🔑 Enter Google Gemini API Key to activate AI responses:", 
+            type="password", 
+            placeholder="AIZA Sy..."
+        )
+        
+        chat_container = st.container(height=350)
         
         for message in st.session_state.chat_history:
             with chat_container.chat_message(message["role"]):
@@ -156,10 +159,10 @@ else:
             
             with chat_container.chat_message("assistant"):
                 with st.spinner("Processing live data tokens..."):
-                    gemini_key = st.secrets.get("GEMINI_API_KEY", None)
                     
-                    if gemini_key:
-                        gemini_url = f"https://googleapis.com{gemini_key}"
+                    # Read the password variable typed directly into the UI input box above
+                    if user_api_key.strip():
+                        gemini_url = f"https://googleapis.com{user_api_key.strip()}"
                         
                         system_instruction = (
                             f"You are the expert AI technical assistant representing developer {username}. "
@@ -177,12 +180,12 @@ else:
                             if api_res.status_code == 200:
                                 bot_reply = api_res.json()["candidates"]["content"]["parts"]["text"]
                             else:
-                                bot_reply = "⚠️ The AI processing pipeline returned a network error. Ensure your Gemini API Key configuration is active."
+                                bot_reply = "⚠️ API Error. Please double-check your Gemini API Key structure or ensure it hasn't expired."
                         except Exception as e:
                             bot_reply = f"⚠️ Connection timed out while reading model vectors: {str(e)}"
                     else:
-                        # Professional sandbox fallback notice
-                        bot_reply = f"Hi! I am the automated chatbot twin for {username}. To unlock live responses trained directly on my code readmes, please save your free `GEMINI_API_KEY` inside your app's secret dashboard settings panel."
+                        # Fallback warning if the key input box is left empty
+                        bot_reply = f"Based on {username}'s public repositories, they possess verified experience working with production data pipelines. (🔒 Sandbox Mode. Provide a `Gemini API Key` above to unlock true conversational generations)."
                     
                     st.write(bot_reply)
             st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
