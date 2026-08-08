@@ -143,7 +143,7 @@ else:
         user_api_key = st.text_input(
             "🔑 Enter Google Gemini API Key to activate AI responses:", 
             type="password", 
-            placeholder="AIZA Sy..."
+            placeholder="AIzaSy..."
         )
         
         chat_container = st.container(height=350)
@@ -160,9 +160,11 @@ else:
             with chat_container.chat_message("assistant"):
                 with st.spinner("Processing live data tokens..."):
                     
-                    # Read the password variable typed directly into the UI input box above
-                    if user_api_key.strip():
-                        gemini_url = f"https://googleapis.com{user_api_key.strip()}"
+                    cleaned_key = user_api_key.strip()
+                    if cleaned_key:
+                        # FIXED: Clean, hardcoded URL endpoint. The key is now safely passed as a URL parameter separately.
+                        gemini_url = "https://googleapis.com"
+                        params = {"key": cleaned_key}
                         
                         system_instruction = (
                             f"You are the expert AI technical assistant representing developer {username}. "
@@ -176,15 +178,15 @@ else:
                         }
                         
                         try:
-                            api_res = requests.post(gemini_url, json=payload)
+                            # FIXED: Explicitly separated URL path from param tokens mapping
+                            api_res = requests.post(gemini_url, params=params, json=payload)
                             if api_res.status_code == 200:
                                 bot_reply = api_res.json()["candidates"]["content"]["parts"]["text"]
                             else:
-                                bot_reply = "⚠️ API Error. Please double-check your Gemini API Key structure or ensure it hasn't expired."
+                                bot_reply = f"⚠️ Gemini API Error (Status {api_res.status_code}). Please verify your key structure is correct."
                         except Exception as e:
                             bot_reply = f"⚠️ Connection timed out while reading model vectors: {str(e)}"
                     else:
-                        # Fallback warning if the key input box is left empty
                         bot_reply = f"Based on {username}'s public repositories, they possess verified experience working with production data pipelines. (🔒 Sandbox Mode. Provide a `Gemini API Key` above to unlock true conversational generations)."
                     
                     st.write(bot_reply)
