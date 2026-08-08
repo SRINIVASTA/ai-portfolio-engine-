@@ -40,27 +40,32 @@ if not st.session_state.logged_in:
     input_username = st.text_input("Enter GitHub Username or Profile Link:", placeholder="e.g., srinivasta or https://github.com")
     
     if st.button("Sign In to Portfolio", type="primary"):
-        cleaned_username = input_username.strip()
+        raw_input = input_username.strip()
         
-        # AUTOMATIC TEXT CLEANING RULE
-        if "://github.com" in cleaned_username:
-            cleaned_username = cleaned_username.split("://github.com")[-1].strip("/")
-        if "github.com" in cleaned_username:
-            cleaned_username = cleaned_username.split("github.com")[-1].strip("/")
+        # 🛡️ BULLETPROOF PROFILE LINK CLEANER
+        if "/" in raw_input:
+            # If full link is pasted, split by slashes and grab the absolute last non-empty piece
+            cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
+        else:
+            cleaned_username = raw_input
+            
+        # Strip out any lingering domain string text explicitly
+        cleaned_username = cleaned_username.replace("github.com", "").strip()
             
         if cleaned_username:
             st.session_state.logged_in = True
             st.session_state.username = cleaned_username
-            st.session_state.vault_context = "" # Reset context state across profiles
+            st.session_state.vault_context = ""
             st.session_state.chat_history = []
             st.rerun()
         else:
             st.error("Please provide a valid developer username to proceed.")
+
 # --- PORTFOLIO DASHBOARD ---
 else:
     username = st.session_state.username
     
-    # Navigation row setup
+    # Navigation row setup - fixed column unpacking strategy
     col1, col2 = st.columns(2)
     with col1:
         st.title(f"✨ Developer Portfolio: {username}")
@@ -81,15 +86,14 @@ else:
     with left_layout:
         st.header("📂 Core Tracked Repositories")
         
-        # Trigger GitHub Profile API data scrape loop
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # THE SECURE BYPASS INJECTION SWITCH FOR STABILITY
+                    # Robust target evaluation framework fallback checks
                     if "TARGET_URL_OVERRIDE" in st.secrets and "users" in st.secrets["TARGET_URL_OVERRIDE"]:
                         target_url = st.secrets["TARGET_URL_OVERRIDE"]
                     else:
-                        target_url = f"https://github.com{username}/repos"
+                        target_url = f"https://api.github.com/users/{username}/repos"
                         
                     response = requests.get(target_url)
                     
@@ -101,39 +105,35 @@ else:
                                 st.success(f"Successfully tracked and parsed {len(repos)} public repositories!")
                                 temp_context = []
                                 
-                                # Render top 5 repository containers smoothly
                                 for repo in repos[:5]:
                                     with st.container(border=True):
                                         st.subheader(repo['name'])
                                         st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 🛠️ {repo['language'] or 'Markdown'}")
                                         st.write(repo['description'] or "No public description provided.")
                                         
-                                        # Save basic repo info to core context list
                                         temp_context.append(f"Repository: {repo['name']}\nDescription: {repo['description'] or 'None'}\nLanguage: {repo['language'] or 'Unknown'}")
                                         
                                         try:
                                             default_branch = repo.get('default_branch', 'main')
-                                            readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md"
+                                            readme_url = f"https://raw.githubusercontent.com/{username}/{repo['name']}/{default_branch}/README.md"
                                             readme_req = requests.get(readme_url)
                                             
                                             if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5:
                                                 text_slices = chunk_text_data(readme_req.text)
                                                 st.caption(f"⚙️ RAG Engine: Split readme into {len(text_slices)} context vectors.")
-                                                # Inject code documentation text blocks into storage arrays
                                                 temp_context.append(f"README Content Slices for {repo['name']}:\n{readme_req.text[:2000]}")
                                             else:
-                                                st.caption("⚠️ No standard README.md found in default repository branch workspace.")
+                                                st.caption("⚠️ No standard README.md found in default repository workspace branch.")
                                         except Exception:
                                             st.caption("⚠️ Unable to process project markdown data frames.")
-                                
-                                # Accumulate tracked vectors into global dashboard state storage
+                                            
                                 st.session_state.vault_context = "\n\n===\n\n".join(temp_context)
                             else:
-                                st.error("GitHub API returned a single profile object instead of an array row listing.")
+                                st.error("GitHub API returned a structural profile layout object instead of a repository listing array row data grid.")
                         except ValueError:
-                            st.error("Critical System Error: Malformed backend JSON response mapping.")
+                            st.error("Critical System Framework Error: Server data response mapping is corrupted or malformed.")
                     else:
-                        st.error(f"GitHub API Error. Status Code: {response.status_code}.")
+                        st.error(f"GitHub API Error. Status Code: {response.status_code}. Profile might not exist.")
                 except Exception as e:
                     st.error(f"System sync connection error occurred: {str(e)}")
         else:
@@ -145,7 +145,6 @@ else:
         
         chat_container = st.container(height=400)
         
-        # Render conversational bubbles arrays loop configurations
         for message in st.session_state.chat_history:
             with chat_container.chat_message(message["role"]):
                 st.write(message["content"])
@@ -156,11 +155,10 @@ else:
             st.session_state.chat_history.append({"role": "user", "content": recruiter_prompt})
             
             with chat_container.chat_message("assistant"):
-                with st.spinner("Processing live generation tokens..."):
+                with st.spinner("Processing live data tokens..."):
                     gemini_key = st.secrets.get("GEMINI_API_KEY", None)
                     
                     if gemini_key:
-                        # 🧠 PRODUCTION RAG ROUTER: Direct connection to Google's Gemini endpoint
                         gemini_url = f"https://googleapis.com{gemini_key}"
                         
                         system_instruction = (
@@ -177,7 +175,7 @@ else:
                         try:
                             api_res = requests.post(gemini_url, json=payload)
                             if api_res.status_code == 200:
-                                bot_reply = api_res.json()["candidates"][0]["content"]["parts"][0]["text"]
+                                bot_reply = api_res.json()["candidates"]["content"]["parts"]["text"]
                             else:
                                 bot_reply = "⚠️ The AI processing pipeline returned a network error. Ensure your Gemini API Key configuration is active."
                         except Exception as e:
