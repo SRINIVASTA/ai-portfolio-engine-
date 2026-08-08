@@ -38,9 +38,9 @@ if not st.session_state.logged_in:
     if st.button("Sign In to Portfolio", type="primary"):
         cleaned_username = input_username.strip()
         
-        # 🛡️ AUTOMATIC TEXT CLEANING RULE:
-        if "://github.com" in cleaned_username:
-            cleaned_username = cleaned_username.split("://github.com")[-1].strip("/")
+        # AUTOMATIC TEXT CLEANING RULE
+        if "github.com/" in cleaned_username:
+            cleaned_username = cleaned_username.split("github.com/")[-1].strip("/")
         if "github.com" in cleaned_username:
             cleaned_username = cleaned_username.split("github.com")[-1].strip("/")
             
@@ -79,8 +79,12 @@ else:
         if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"):
             with st.spinner("Accessing GitHub REST endpoints..."):
                 try:
-                    # 100% CLEANED TARGET URL ENDPOINT
-                    target_url = f"https://github.com{username}/repos"
+                    # THE ULTIMATE BYPASS INJECTION BARRIER SWITCH
+                    if "TARGET_URL_OVERRIDE" in st.secrets:
+                        target_url = st.secrets["TARGET_URL_OVERRIDE"]
+                    else:
+                        target_url = f"https://github.com{username}/repos"
+                        
                     response = requests.get(target_url)
                     
                     if response.status_code == 200:
