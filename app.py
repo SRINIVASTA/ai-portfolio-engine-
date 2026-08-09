@@ -153,7 +153,7 @@ else:
    st.write("Processing financial statement data structures and auditing tables.")
   elif st.session_state.niche_brand == "transition_control":
    st.header("🤖 TransitionControl Governance Center")
-   st.write("Scanning migration pathways to completely eliminate operational risk gaps.")
+   st.write("Querying synced repository matrices to eliminate operational migration and risk gaps.")
   else:
    st.header("💬 Chat with Repositories") 
    st.write("Hiring managers can interview your codebase vector data spaces instantly.") 
