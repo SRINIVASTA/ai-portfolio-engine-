@@ -79,7 +79,8 @@ def run_dynamic_sync_pipeline(username):
             # 🛑 BREAKPOINT OVERRIDE: If any duplicate loop hidden inside your file structure introduces the typo, 
             # this guardrail catches it instantly and overwrites it back to the functional API host.
             if "https://://" in target_url or "github.com/" in target_url:
-                target_url = f"https://github.com{clean_handle}/repos?per_page=100"
+                target_url = f"https://api.github.com/users/{username}/repos?per_page=100"
+
 
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
