@@ -139,6 +139,9 @@ def run_dynamic_sync_pipeline(username):
                         st.session_state.niche_brand = "transition_control"
                     else: 
                         st.session_state.niche_brand = "general"
+                        
+                    # 🎯 PERSISTENT STATE BRIDGE: Tells app.py to lock the dashboard view open
+                    st.session_state.sync_completed = True
                     st.rerun() 
                 else: 
                     st.error("GitHub API response layout configuration mismatch.") 
