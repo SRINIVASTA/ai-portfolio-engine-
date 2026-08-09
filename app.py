@@ -40,13 +40,20 @@ if not st.session_state.logged_in:
  if st.button("Sign In to Portfolio", type="primary"): 
   raw_input = input_username.strip() 
  
-  # 🎯 BULLETPROOF PROFILE LINK CLEANER FOR RECRUITMENT SAAS PLATFORMS: 
-  if "/" in raw_input: 
-   cleaned_username = [piece for piece in raw_input.split("/") if piece][-1] 
-  else: 
-   cleaned_username = raw_input 
- 
-  cleaned_username = cleaned_username.replace("github.com", "").strip() 
+  # 🎯 RE-ENGINEERED BULLETPROOF PROFILE LINK CLEANER FOR RECRUITMENT SAAS PLATFORMS: 
+  cleaned_username = raw_input
+  
+  # Remove protocol prefixes safely if pasted
+  cleaned_username = cleaned_username.replace("https://", "").replace("http://", "")
+  
+  # Remove the domain signature safely if pasted
+  cleaned_username = cleaned_username.replace("github.com", "")
+  
+  # Remove any leading or trailing slashes left behind by the strip splits
+  cleaned_username = cleaned_username.strip("/")
+  
+  # Final sanitation trim
+  cleaned_username = cleaned_username.strip()
  
   if cleaned_username: 
    st.session_state.logged_in = True 
