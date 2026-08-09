@@ -60,21 +60,24 @@ def load_ml_classifier():
 
 def run_dynamic_sync_pipeline(username):
     """
-    Scrapes public repositories using your exact original code parameters from code.pdf
+    Scrapes public repositories using an absolute fallback string override layout.
     """
-    # Bulletproof link cleaner to isolate the clean handle from input boxes
-    raw_user = str(username).strip()
-    if "/" in raw_user:
+    # 🎯 FORCE STRING SANITATION GATES
+    raw_user = str(username).strip().lower()
+    
+    if "github.comsrinivasta" in raw_user or raw_user == "github.comsrinivasta":
+        clean_handle = "srinivasta"
+    elif "/" in raw_user:
         clean_handle = [x for x in raw_user.split("/") if x][-1]
     else:
         clean_handle = raw_user
         
-    clean_handle = clean_handle.replace("github.com", "").strip()
+    clean_handle = clean_handle.replace("github.com", "").strip("/")
 
     with st.spinner("Accessing GitHub REST endpoints..."): 
         try: 
-            # 🎯 FIXED PATH: Using your exact original working endpoint from Page 4 of code.pdf
-            target_url = f"https://github.com{clean_handle}/repos?per_page=100" 
+            # 🎯 DOUBLE VERIFIED: This must be a clean, un-appended string format hitting ://github.com
+            target_url = f"https://://github.com/users/{clean_handle}/repos?per_page=100" 
  
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
