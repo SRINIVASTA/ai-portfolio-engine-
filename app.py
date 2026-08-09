@@ -157,7 +157,7 @@ else:
      else: 
       st.subheader(repo['name']) 
       
-     st.write(f"**Stars:** ⭐ {repo['stars']} | **Language:** 📝 {repo['language']}")
+     st.write(f"**Language:** 📝 {repo['language']}")
      st.write(repo['description'])
   else: 
    st.info("Click the Sync button above to scrape public GitHub API records dynamically.") 
