@@ -6,11 +6,19 @@ import streamlit as st
 def process_javascript_chat_engine(username, prompt, api_key):
     """
     Safely executes backend/api/chat.js via a Node.js runtime process,
-    passing instructions, user context, and UI niche states cleanly.
+    handling dependencies and passing layout variables.
     """
     cleaned_key = api_key.strip()
     if not cleaned_key:
         return f"Based on {username}'s public repositories, they possess verified experience working with production data pipelines. (⚠️ Sandbox Mode. Provide an API Key above to unlock true conversational generations)."
+
+    # 🎯 SELF-HEALING AUTOMATION LAYER: Installs node_modules if they are missing on Streamlit Cloud
+    if not os.path.exists("node_modules"):
+        with st.spinner("Initializing first-time Node.js production dependencies (npm install)..."):
+            try:
+                subprocess.run(["npm", "install"], check=True, capture_output=True, text=True)
+            except Exception as e:
+                return f"⚠️ Automated npm initialization package deployment failed: {str(e)}"
 
     # 1. Establish custom system personas matching your ML layout state weights
     if st.session_state.niche_brand == "capital_vantage":
