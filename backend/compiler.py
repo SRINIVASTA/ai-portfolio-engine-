@@ -2,24 +2,33 @@ import os
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
-    Scrapes sync matrices, outputs static site files, and returns a safe,
-    browser-compliant HTML code block for rendering layout channels.
+    Automates string processing loops on synced metrics data.
+    Filters out any repository missing a public description, removes star counts,
+    and saves clean configurations straight into the root index.html block.
     """
     featured_html = ""
     tracked_html = ""
     unassigned_html = ""
     
-    for idx, repo in enumerate(ml_sorted_repos):
+    # Counter to track layout placement since we are filtering elements out
+    valid_idx = 0
+    
+    for repo in ml_sorted_repos:
         name = repo.get('name', 'Unnamed Asset')
-        stars = repo.get('stars', 0)
         lang = repo.get('language', 'Python')
-        desc = repo.get('description', 'No public description matrix provided.')
+        desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # --- FEATURED STREAMLIT PROJECTS TRACK ---
-        if idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower()):
+        # 🎯 CRITICAL ACCURACY RULE: Skip this repo if description is empty or missing
+        if not desc or not str(desc).strip() or "no public description" in str(desc).lower():
+            continue
+            
+        desc = str(desc).strip()
+        
+        # --- TRACK 1: FEATURED STREAMLIT PROJECTS ---
+        if valid_idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower()):
             icon = "📈 💰 🚀" if tag == "capital_vantage" else "📈 📊 🚀" if tag == "transition_control" else "🖼️ ⚡ 🤖"
-            label = "GenAI Financial Intelligence" if tag == "capital_vantage" else "AI-Driven BPO Intelligence" if tag == "transition_control" else "Streamlit Application Platform"
+            label = "GenAI Financial Intelligence" if tag == "capital_vantage" else "AI-Driven BPO Intelligence" if tag == "transition_control" else "Streamlit Application"
             
             featured_html += f"""
                 <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:20px;">
@@ -31,12 +40,14 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                     <a href="https://streamlit.app" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px;">Launch Live Platform</a>
                 </div>
             """
-        # --- STANDARD CORE TRACKED REPOSITORIES ---
-        elif idx < 10:
+            valid_idx += 1
+        # --- TRACK 2: CORE REPOSITORIES GRID ---
+        elif valid_idx < 10:
             track_title = "📊 Fintech Asset" if tag == "capital_vantage" else "🛠️ BPO System" if tag == "transition_control" else "📁 Core Track Component"
             badge_bg = "#341212" if tag == "capital_vantage" else "#123034" if tag == "transition_control" else "#21262d"
             badge_color = "#ff7b72" if tag == "capital_vantage" else "#58a6ff" if tag == "transition_control" else "#8b949e"
             
+            # ⭐ Stars metric completely removed from metadata row
             tracked_html += f"""
                 <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                     <div>
@@ -44,7 +55,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                             <h4 style="margin:0; color:#fff; font-size:1.1rem; max-width:70%; overflow:hidden; text-overflow:ellipsis;">{name}</h4>
                             <span style="background:{badge_bg}; color:{badge_color}; border:1px solid rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px; font-size:11px; font-family:monospace; white-space:nowrap;">{lang}</span>
                         </div>
-                        <div style="font-size:12px; color:#8b949e; font-family:monospace; margin-bottom:10px;">{track_title} | ⭐ Stars: {stars}</div>
+                        <div style="font-size:12px; color:#8b949e; font-family:monospace; margin-bottom:10px;">{track_title}</div>
                         <p style="color:#8b949e; font-size:13.5px; line-height:1.5; margin:0 0 15px 0;">{desc}</p>
                     </div>
                     <div style="border-top:1px solid #21262d; padding-top:12px; text-align:right;">
@@ -52,7 +63,8 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                     </div>
                 </div>
             """
-        # --- ADDITIONAL REPOSITORY ARCHITECTURE MATRIX ---
+            valid_idx += 1
+        # --- TRACK 3: ADDITIONAL ARCHITECTURE MATRIX ---
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
@@ -61,7 +73,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
             """
-
+            valid_idx += 1
     full_html_output = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,7 +117,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
 </body>
 </html>"""
 
-    # Keep writing locally on server disk to maintain tree file integrity
+    # Atomic write to cloud instance folder tree override path
     with open("index.html", "w", encoding="utf-8") as file:
         file.write(full_html_output)
         
