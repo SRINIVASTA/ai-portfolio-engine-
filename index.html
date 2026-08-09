@@ -26,8 +26,8 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
                 <span class="text-xs tracking-widest font-black bg-blue-600 text-white px-2 py-1 uppercase rounded">WORKSPACE STATUS: INTEGRATED</span>
-                <h1 class="text-3xl font-black mt-3 uppercase tracking-tight text-white md:text-4xl">
-                    🚀 SRINIVASTA ENTERPRISE PRODUCTION PORTFOLIO
+                <h1 id="warehouse-headline" class="text-3xl font-black mt-3 uppercase tracking-tight text-white md:text-4xl">
+                    🚀 LOADING LOGISTICS WORKSPACE...
                 </h1>
                 <p class="mt-2 text-sm text-slate-400 max-w-3xl">
                     Autonomous central clearing hub sorting specialized software repositories across 5 distinct industrial storage bays. Powered by live, unthrottled client-side semantic routing.
@@ -75,7 +75,7 @@
         <!-- 🏢 DIVISION 4: SPECIALIZED SCIENTIFIC & COMPLEX SIMULATIONS -->
         <section class="mb-12 hidden" id="bay-sims">
             <h2 class="text-md font-black text-purple-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                🛠️ BAY DELTA: ADVANCED MATRIX TELEMETRY & STRATEGIC KINETIC SIMULATORS
+                ⚛️ BAY DELTA: ADVANCED MATRIX TELEMETRY & STRATEGIC KINETIC SIMULATORS
             </h2>
             <div id="grid-sims" class="grid gap-6 md:grid-cols-2"></div>
         </section>
@@ -96,29 +96,42 @@
     <script>
         async function runWarehouseDistributionEngine() {
             const statusBanner = document.getElementById("warehouse-loading-dock");
-            const targetUser = "SRINIVASTA";
+            const headline = document.getElementById("warehouse-headline");
+
+            // 🎯 FIXED DYNAMIC USERNAME EXTRACTION:
+            // Safely extracts the username string from the 'username.github.io' hostname structure
+            const host = window.location.hostname;
+            let discoveredUser = "SRINIVASTA"; // Default fallback sandbox configuration
+
+            if (host.includes(".github.io")) {
+                const parts = host.split('.');
+                if (parts.length > 0 && parts[0] !== "localhost" && parts[0] !== "127") {
+                    discoveredUser = parts[0];
+                }
+            }
+
+            // Sync the warehouse title to represent the discovered developer path
+            headline.innerText = `🚀 ${discoveredUser.toUpperCase()} ENTERPRISE PRODUCTION PORTFOLIO`;
 
             try {
-                // 🎯 FIXED DATA ENDPOINT CHANNEL: Uses JSON object aggregation wrapper to bypass proxy rate blocking 
-                const secureProxyRoute = `https://api.allorigins.win/get?url=${encodeURIComponent('https://github.com' + targetUser + '/repos?per_page=100&sort=updated')}`;
+                // Route the data fetch pipeline dynamically to match the active user domain asset via JSON wrap proxy
+                const secureProxyRoute = `https://allorigins.win{encodeURIComponent('https://github.com' + discoveredUser + '/repos?per_page=100&sort=updated')}`;
                 
                 const response = await fetch(secureProxyRoute);
-                if (!response.ok) throw new Error("Infrastructure Communication Link Interrupted");
+                if (!response.ok) throw new Error("Infrastructure Link Blocked");
                 
                 const jsonWrapper = await response.json();
-                
-                // Parse the internal contents returned by the AllOrigins payload wrapper string
                 const repos = JSON.parse(jsonWrapper.contents);
                 
                 if (Array.isArray(repos) && repos.length > 0) {
                     processFiveTierSorting(repos);
-                    statusBanner.innerText = `⚙️ LIVE DATA SYSTEM OPERATIONAL: ${repos.length} REPOSITORIES AUTOMATICALLY SYNCED ACROSS 5 SECTORS`;
+                    statusBanner.innerText = `⚙️ LIVE AUTOMATED SYNC OPERATIONAL: ${repos.length} REPOSITORIES MAP-SORTED ACROSS 5 INFRASTRUCTURE SECTORS`;
                     statusBanner.className = "text-center py-4 border border-dashed border-emerald-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-emerald-400 font-bold uppercase tracking-wider";
                 } else {
-                    throw new Error("Empty repository database signature payload received.");
+                    throw new Error("Empty dashboard configurations parsed.");
                 }
             } catch (error) {
-                statusBanner.innerText = `⚠️ PIPELINE CRITICAL FAULT: NETWORK HANDSHAKE TIMEOUT. RE-ROUTING STACK PROCESSORS...`;
+                statusBanner.innerText = `⚠️ PIPELINE CRITICAL FAULT: ALLORIGINS TUNNEL OUTAGE. GITHUB API ENFORCED BLOCK.`;
                 statusBanner.className = "text-center py-4 border border-dashed border-red-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-red-400 font-bold uppercase tracking-wider";
             }
         }
@@ -139,7 +152,7 @@
                 const desc = repo.description || "No public packaging manifest specifications logged.";
                 const context = `${name.toLowerCase()} ${desc.toLowerCase()}`;
 
-                // 🧠 Machine Learning Domain Keyword Matching Parameters
+                // 🧠 Multi-Division Keyword Mapping Parameters
                 let sector = "tools"; 
                 
                 if (["underwriting", "credit", "risk", "banking", "finance", "capital", "vantage", "scorecard", "ledger", "tax", "invoice", "stock", "nifty", "pulse"].some(w => context.includes(w))) {
@@ -155,7 +168,7 @@
                 counts[sector]++;
 
                 let accentClass = "border-tools";
-                let labelText = "⚙️ PALLET: TOOL COMPUTE";
+                let labelText = "⚙️ PALLET: COMPUTE TOOL";
                 if (sector === "fintech") { accentClass = "border-fintech"; labelText = "💰 PALLET: FINTECH"; }
                 else if (sector === "genai") { accentClass = "border-genai"; labelText = "🤖 PALLET: GEN AI"; }
                 else if (sector === "dataops") { accentClass = "border-dataops"; labelText = "📊 PALLET: DATAOPS"; }
@@ -165,8 +178,8 @@
                     <div class="bg-industrial-dark p-6 rounded border border-slate-800 hover:border-slate-700 transition duration-200 flex flex-col justify-between ${accentClass}">
                         <div>
                             <div class="flex justify-between items-start gap-4">
-                                <h3 class="text-md font-black tracking-tight text-white font-mono">${name}</h3>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-black border border-slate-800 text-slate-400">
+                                <h3 class="text-md font-black tracking-tight text-white font-mono text-sm">${name}</h3>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-black border border-slate-800 text-slate-400">
                                     ${labelText}
                                 </span>
                             </div>
@@ -174,7 +187,7 @@
                         </div>
                         <div class="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between text-xs font-mono text-slate-500">
                             <span class="flex items-center gap-1">📝 ${repo.language || 'Python'}</span>
-                            <a href="${repo.html_url}" target="_blank" class="font-bold underline hover:no-underline text-amber-500 transition">MANIFEST SOURCE →</a>
+                            <a href="${repo.html_url}" target="_blank" class="font-bold underline hover:no-underline text-blue-400 hover:text-blue-300 transition">MANIFEST SOURCE →</a>
                         </div>
                     </div>
                 `;
@@ -182,7 +195,7 @@
                 grids[sector].innerHTML += cardHTML;
             });
 
-            // Forcibly un-hide sections that contain mapped repository payloads
+            // Unhide the specific bays that contain populated repository cards
             if (counts.fintech > 0) document.getElementById("bay-fintech").classList.remove("hidden");
             if (counts.genai > 0) document.getElementById("bay-genai").classList.remove("hidden");
             if (counts.dataops > 0) document.getElementById("bay-dataops").classList.remove("hidden");
