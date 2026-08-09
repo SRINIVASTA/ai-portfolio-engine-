@@ -61,11 +61,16 @@ if not st.session_state.logged_in:
    st.error("Please provide a valid developer username to proceed.") 
 
 # --- PORTFOLIO DASHBOARD --- 
+# --- PORTFOLIO DASHBOARD --- 
 else: 
  # 🎯 ABSOLUTE RUNTIME SHIELD: Forcibly catches and strips out malformed cached items
  session_user = str(st.session_state.username).strip()
- if "github.com" in session_user or "github.comsrinivasta" in session_user:
-     session_user = "srinivasta"
+ if "/" in session_user:
+     session_user = [piece for piece in session_user.split("/") if piece][-1]
+     
+ session_user = session_user.replace("github.com", "").replace("https:", "").replace("http:", "")
+ session_user = session_user.strip("/")
+ session_user = session_user.strip()
  st.session_state.username = session_user
 
  username = st.session_state.username 
@@ -103,9 +108,8 @@ else:
  with left_layout: 
   st.header("📁 Core Tracked Repositories") 
   if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"): 
-   # Double check string data arrays directly before invoking backend functions
-   clean_runtime_user = str(username).replace("github.com", "").strip("/")
-   run_dynamic_sync_pipeline(clean_runtime_user)
+   # 🎯 FIX: Pass the completely sanitized username straight to the backend pipeline
+   run_dynamic_sync_pipeline(username)
   else: 
    st.info("Click the Sync button above to scrape public GitHub API records dynamically.") 
    
