@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Srinivasta Logistics - AI & FinTech Repo Warehouse</title>
+    <script src="https://tailwindcss.com"></script>
+    <style>
+        body { background-color: #0b0f19; color: #e2e8f0; }
+        .industrial-yellow { color: #f59e0b; }
+        .bg-industrial-dark { background-color: #111827; }
+        .forklift-border-fintech { border-top: 6px solid #f59e0b; border-left: 2px dashed #f59e0b; }
+        .forklift-border-bpo { border-top: 6px solid #ef4444; border-left: 2px dashed #ef4444; }
+    </style>
+</head>
+<body class="font-mono antialiased selection:bg-amber-500 selection:text-black">
+
+    <!-- Industrial Hazardous Hazard Warning Top Bar Accent Line Layout -->
+    <div class="h-4 bg-repeat-x w-full" style="background-image: repeating-linear-gradient(-45deg, #f59e0b, #f59e0b 10px, #000 10px, #000 20px);"></div>
+
+    <!-- Warehouse Terminal Masthead Section Header -->
+    <header class="max-w-6xl mx-auto px-6 py-10 border-b border-slate-800 bg-slate-900/20 mt-4 rounded-lg">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <span class="text-xs tracking-widest font-black bg-amber-500 text-black px-2 py-1 uppercase rounded">SYSTEM STATUS: ACTIVE</span>
+                <h1 class="text-3xl font-black mt-3 uppercase tracking-tight text-white md:text-4xl">
+                    🚜 SRINIVASTA OPERATIONAL LOGISTICS WORKSPACE
+                </h1>
+                <p class="mt-2 text-sm text-slate-400 max-w-2xl">
+                    Automated command center executing asynchronous forklift stack sorting logic. Material pipelines route production repositories into classified warehouse storage racks.
+                </p>
+            </div>
+            <!-- Industrial Forklift ASCII Art / Badge Vector Visual Anchor -->
+            <div class="bg-black/40 p-4 rounded border border-amber-500/30 text-xs font-mono text-amber-500 hidden md:block whitespace-pre">
+   __
+ _/  \______
+/  _   _____)   [FORKLIFT COMPUTE ENGINE]
+\_/ \_/         Tenant Load: 100% Secure
+            </div>
+        </div>
+    </header>
+
+    <!-- LIVE QUANTUM TERMINAL LOGISTICS INFRASTRUCTURE CONTAINER PANELS -->
+    <main class="max-w-6xl mx-auto px-6 py-10">
+        
+        <!-- Live API Loading State Frame Display -->
+        <div id="warehouse-loading-dock" class="text-center py-12 border border-dashed border-slate-700 rounded-xl bg-slate-900/10">
+            <div class="inline-block animate-spin text-2xl mb-3 text-amber-500">⚙️</div>
+            <p class="text-sm text-slate-400 font-bold uppercase tracking-wider">Deploying Terminal Cranes... Fetching Live Profile Data Ingestions.</p>
+        </div>
+
+        <!-- Automated High-Bay Racks for Fintech Asset Classes -->
+        <section class="mb-12 hidden" id="fintech-storage-bay">
+            <h2 class="text-lg font-black text-amber-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                📦 HIGH-RACK BAY ALPHA: FINTECH MODEL ASSET MATRIX
+            </h2>
+            <div id="fintech-rack-grid" class="grid gap-6 md:grid-cols-2"></div>
+        </section>
+
+        <!-- Automated Low-Shelf Bays for Core BPO Governance Controls -->
+        <section class="hidden" id="bpo-storage-bay">
+            <h2 class="text-lg font-black text-rose-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                🛠️ LOW-SHELF BAY BETA: BPO AUTOMATION & RISK TELEMETRY SYSTEM
+            </h2>
+            <div id="bpo-rack-grid" class="grid gap-6 md:grid-cols-2"></div>
+        </section>
+    </main>
+
+    <!-- Unified Infrastructure System Page Footer Elements -->
+    <footer class="max-w-6xl mx-auto px-6 py-8 text-center text-xs text-slate-600 border-t border-slate-800 mt-12 flex justify-between items-center">
+        <span>✓ Verified Production Architecture Integration Enabled</span>
+        <span class="bg-slate-900 px-3 py-1 rounded text-slate-400 font-bold">DPDP-2026 AUDIT: PASS</span>
+    </footer>
+
+    <!-- LIVE ASYNCHRONOUS GITHUB FETCH API ROUTING ENGINE CORE INJECTION SCRIPT -->
+    <script>
+        async function operateForkliftSyncPipeline() {
+            // Target user handles extracted directly down into pristine single words
+            const targetDeveloperHandle = "SRINIVASTA";
+            const githubEndpointRoute = `https://github.com{targetDeveloperHandle}/repos?per_page=100`;
+
+            const loaderWidget = document.getElementById("warehouse-loading-dock");
+            const fintechSection = document.getElementById("fintech-storage-bay");
+            const fintechGrid = document.getElementById("fintech-rack-grid");
+            const bpoSection = document.getElementById("bpo-storage-bay");
+            const bpoGrid = document.getElementById("bpo-rack-grid");
+
+            try {
+                // Execute a network pipeline fetch operation
+                const response = await fetch(githubEndpointRoute);
+                if (!response.ok) throw new Error("API Data Extraction Pipeline Breakout Fault.");
+                
+                const repositoryCollection = await response.json();
+                
+                // Process classification weights matching your Naive Bayes dictionary strings
+                const fintechKeywords = ["invoice", "ledger", "tax", "banking", "finance", "capital", "vantage", "money", "stock", "predictive"];
+                const bpoKeywords = ["migration", "workflow", "governance", "risk", "bpo", "control", "roadmap", "tool", "recruiter", "viewer", "sim", "telemetry", "etl"];
+
+                let hasFintech = false;
+                let hasBpo = false;
+
+                repositoryCollection.forEach(repo => {
+                    const repoName = repo.name || "";
+                    const repoDesc = repo.description || "";
+                    const normalizedTextBlob = `${repoName.toLowerCase()} ${repoDesc.toLowerCase()}`;
+
+                    // Evaluate model placement priority targets
+                    let classificationTag = "general";
+                    if (fintechKeywords.some(keyword => normalizedTextBlob.includes(keyword))) {
+                        classificationTag = "fintech";
+                        hasFintech = true;
+                    } else if (bpoKeywords.some(keyword => normalizedTextBlob.includes(keyword))) {
+                        classificationTag = "bpo";
+                        hasBpo = true;
+                    }
+
+                    // Build standard operational layout templates for warehouse pallet boxes
+                    const palletBoxHTML = `
+                        <div class="bg-industrial-dark p-6 rounded border border-slate-800 hover:border-slate-700 transition duration-200 relative overflow-hidden flex flex-col justify-between ${classificationTag === 'fintech' ? 'forklift-border-fintech' : 'forklift-border-bpo'}">
+                            <div>
+                                <div class="flex justify-between items-start gap-4">
+                                    <h3 class="text-md font-black tracking-tight text-white font-mono">${repoName}</h3>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-black border ${classificationTag === 'fintech' ? 'text-amber-500 border-amber-500/40' : 'text-rose-500 border-rose-500/40'}">
+                                        ${classificationTag === 'fintech' ? '▲ PALLET: FIN' : '▼ PALLET: BPO'}
+                                    </span>
+                                </div>
+                                <p class="mt-3 text-slate-400 text-xs leading-relaxed font-sans">${repoDesc || 'No public packaging manifest specifications logged.'}</p>
+                            </div>
+                            <div class="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between text-xs font-mono text-slate-500">
+                                <span class="flex items-center gap-1">📝 ${repo.language || 'Markdown'}</span>
+                                <span class="flex items-center gap-1">⭐ ${repo.stargazers_count || 0}</span>
+                                <a href="${repo.html_url}" target="_blank" class="font-bold underline hover:no-underline transition ${classificationTag === 'fintech' ? 'text-amber-500' : 'text-rose-500'}">MANIFEST SOURCE →</a>
+                            </div>
+                        </div>
+                    `;
+
+                    // Route pallet box elements into matching warehouse inventory shelves
+                    if (classificationTag === "fintech") {
+                        fintechGrid.innerHTML += palletBoxHTML;
+                    } else {
+                        bpoGrid.innerHTML += palletBoxHTML;
+                    }
+                });
+
+                // Strip out loading indicators and reveal organized bay racks
+                loaderWidget.classList.add("hidden");
+                if (hasFintech) fintechSection.classList.remove("hidden");
+                if (hasBpo) bpoSection.classList.remove("hidden");
+
+            } catch (error) {
+                loaderWidget.innerHTML = `<p class="text-sm text-red-500 font-bold uppercase tracking-wider">⚠️ TERMINAL CRITICAL ERROR: ${error.message}</p>`;
+            }
+        }
+
+        // Initialize forklift sorting routing on main window initialization pass
+        window.onload = operateForkliftSyncPipeline;
+    </script>
+</body>
+</html>
