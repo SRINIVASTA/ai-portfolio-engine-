@@ -28,6 +28,8 @@ if "niche_brand" not in st.session_state:
  st.session_state.niche_brand = "general"
 if "sync_completed" not in st.session_state:
  st.session_state.sync_completed = False
+if "repos_data" not in st.session_state:
+ st.session_state.repos_data = []
 
 # --- LANDING PAGE (SaaS Entry Point) --- 
 if not st.session_state.logged_in: 
@@ -41,8 +43,6 @@ if not st.session_state.logged_in:
  if st.button("Sign In to Portfolio", type="primary"): 
   raw_input = input_username.strip() 
  
-  # 🎯 RE-ENGINEERED BULLETPROOF PROFILE LINK CLEANER FOR RECRUITMENT SAAS:
-  # Completely isolates just the trailing text fragment name regardless of entry variations
   if "/" in raw_input:
       cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
   else:
@@ -59,13 +59,13 @@ if not st.session_state.logged_in:
    st.session_state.chat_history = [] 
    st.session_state.niche_brand = "general"
    st.session_state.sync_completed = False
+   st.session_state.repos_data = []
    st.rerun() 
   else: 
    st.error("Please provide a valid developer username to proceed.") 
 
 # --- PORTFOLIO DASHBOARD --- 
 else: 
- # 🎯 ABSOLUTE RUNTIME SHIELD: Completely extract a single word handle, stripping protocols and domains
  session_user = str(st.session_state.username).strip()
  if "/" in session_user:
      session_user = [piece for piece in session_user.split("/") if piece][-1]
@@ -77,7 +77,6 @@ else:
 
  username = st.session_state.username 
  
- # Dynamic Visual Theming Layer injected directly into the HTML root components
  if st.session_state.niche_brand == "capital_vantage":
   st.markdown("<style> :root { --primaryColor: #00D4B2; } .stButton>button { color: #00D4B2; border-color: #00D4B2; } </style>", unsafe_allow_html=True)
  elif st.session_state.niche_brand == "transition_control":
@@ -101,6 +100,7 @@ else:
    st.session_state.vault_context = "" 
    st.session_state.niche_brand = "general"
    st.session_state.sync_completed = False
+   st.session_state.repos_data = []
    st.rerun() 
  
  st.write("`✓ Verified Production Architecture Integration Enabled`") 
@@ -111,15 +111,23 @@ else:
  with left_layout: 
   st.header("📁 Core Tracked Repositories") 
   if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"): 
-   # 🎯 FIX: Passes a pristine, single-string handle directly to the backend pipeline
    run_dynamic_sync_pipeline(username)
-   # Mark the synchronization state parameter as True before hitting rerun
-   st.session_state.sync_completed = True
-   st.rerun()
    
-  # 🎯 CHANGED CONDITIONAL LOGIC: If sync completed successfully, don't show the info placeholder
-  if st.session_state.sync_completed:
+  # 🎯 RENDERING PERSISTENCE LAYER: Draws repositories from session states safely across reruns
+  if st.session_state.sync_completed and st.session_state.repos_data:
    st.success("Repository context matrices successfully synced and written to session memory!")
+   
+   for repo in st.session_state.repos_data:
+    with st.container(border=True):
+     if repo['tag'] == "capital_vantage": 
+      st.subheader(f"📈 {repo['name']} [Fintech Asset]")
+     elif repo['tag'] == "transition_control": 
+      st.subheader(f"🛠️ {repo['name']} [BPO System]")
+     else: 
+      st.subheader(repo['name']) 
+      
+     st.write(f"**Stars:** ⭐ {repo['stars']} | **Language:** 📝 {repo['language']}")
+     st.write(repo['description'])
   else: 
    st.info("Click the Sync button above to scrape public GitHub API records dynamically.") 
    
