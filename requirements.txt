@@ -4,3 +4,4 @@ requests
 google-genai
 scikit-learn
 joblib
+beautifulsoup4
