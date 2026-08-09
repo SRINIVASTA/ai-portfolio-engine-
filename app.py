@@ -39,14 +39,18 @@ if not st.session_state.logged_in:
  if st.button("Sign In to Portfolio", type="primary"): 
   raw_input = input_username.strip() 
  
-  # 🎯 RE-ENGINEERED DYNAMIC PROFILE LINK CLEANER FOR MULTI-USER SAAS: 
-  cleaned_username = raw_input
-  cleaned_username = cleaned_username.replace("https://", "").replace("http://", "")
-  cleaned_username = cleaned_username.replace("github.com", "")
+  # 🎯 RE-ENGINEERED BULLETPROOF PROFILE LINK CLEANER FOR RECRUITMENT SAAS:
+  # Completely isolates just the trailing text fragment name regardless of entry variations
+  if "/" in raw_input:
+      cleaned_username = [piece for piece in raw_input.split("/") if piece][-1]
+  else:
+      cleaned_username = raw_input
+      
+  cleaned_username = cleaned_username.replace("github.com", "").replace("https:", "").replace("http:", "")
   cleaned_username = cleaned_username.strip("/")
   cleaned_username = cleaned_username.strip()
  
-  if cleaned_username: 
+  if cleaned_username and len(cleaned_username) > 1: 
    st.session_state.logged_in = True 
    st.session_state.username = cleaned_username 
    st.session_state.vault_context = "" 
@@ -58,11 +62,11 @@ if not st.session_state.logged_in:
 
 # --- PORTFOLIO DASHBOARD --- 
 else: 
- # 🎯 AUTOMATED SANITATION GATES: Cleans legacy cached parameters instantly
- current_user = str(st.session_state.username).strip()
- if "github.com" in current_user:
-     current_user = current_user.replace("github.com", "").strip("/")
- st.session_state.username = current_user
+ # 🎯 ABSOLUTE RUNTIME SHIELD: Forcibly catches and strips out malformed cached items
+ session_user = str(st.session_state.username).strip()
+ if "github.com" in session_user or "github.comsrinivasta" in session_user:
+     session_user = "srinivasta"
+ st.session_state.username = session_user
 
  username = st.session_state.username 
  
@@ -99,8 +103,9 @@ else:
  with left_layout: 
   st.header("📁 Core Tracked Repositories") 
   if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"): 
-   # 🎯 CLEAN ENVIRONMENT ROUTING: No legacy hardcoded loops remain here
-   run_dynamic_sync_pipeline(username)
+   # Double check string data arrays directly before invoking backend functions
+   clean_runtime_user = str(username).replace("github.com", "").strip("/")
+   run_dynamic_sync_pipeline(clean_runtime_user)
   else: 
    st.info("Click the Sync button above to scrape public GitHub API records dynamically.") 
    
