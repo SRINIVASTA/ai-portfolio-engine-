@@ -4,8 +4,8 @@ import re
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Advanced compiler engine matching the official AI-Portfolio-Hub structure.
-    Fixes the missing forward slash bug by explicitly enforcing 'https://github.com'
-    and dynamically mapping live active project URLs from descriptions.
+    Permanently repairs the missing forward slash path routing bug by mapping
+    repository targets to 'https://github.com'.
     """
     featured_html = ""
     tracked_html = ""
@@ -62,7 +62,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         icon_marker = "🏦 ⚖️ 🚀" if "moder" in name.lower() else "🌐 📊 🚀" if "creditpulse" in name.lower() else "⚡ 🤖 🚀"
 
         # --- TRACK 1: FEATURED HIGH-DENSITY PROJECTS LAYER ---
-        # Fixed explicit trailing slash on github.com below
+        # Fixed: Explicit forward slash routing embedded in absolute address structure below
         if valid_idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower() or "moder" in name.lower() or "creditpulse" in name.lower() or "bhojan" in name.lower()):
             featured_html += f"""
                 <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:20px;">
@@ -78,7 +78,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             """
             valid_idx += 1
         # --- TRACK 2: CORE REPOSITORIES GRID ---
-        # Fixed explicit trailing slash on github.com below
+        # Fixed: Explicit forward slash routing embedded in absolute address structure below
         elif valid_idx < 10:
             track_title = "📊 FinTech Asset" if tag == "capital_vantage" else "🛠️ Business Intelligence" if tag == "transition_control" else "📁 Core Track Component"
             badge_bg = "#341212" if tag == "capital_vantage" else "#123034" if tag == "transition_control" else "#21262d"
@@ -103,7 +103,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             """
             valid_idx += 1
         # --- TRACK 3: ADDITIONAL ARCHITECTURE UNASSIGNED MATRIX ---
-        # Fixed explicit trailing slash on github.com below
+        # Fixed: Explicit forward slash routing embedded in absolute address structure below
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
