@@ -91,7 +91,7 @@
 
     <footer class="max-w-6xl mx-auto px-6 py-8 text-center text-xs text-slate-600 border-t border-slate-800 mt-12 flex justify-between items-center">
         <span>✓ Multimodal Architectural Division Enabled</span>
-        <span class="bg-slate-900 px-3 py-1 rounded text-slate-400 font-bold">As of August 2026</span>
+        <span class="bg-slate-900 px-3 py-1 rounded text-slate-400 font-bold">As of <script>document.write(new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' }))</script></span>
     </footer>
     <script>
         async function runWarehouseDistributionEngine() {
@@ -99,22 +99,21 @@
             const headline = document.getElementById("warehouse-headline");
 
             // 🎯 FIXED DYNAMIC USERNAME EXTRACTION:
-            // Safely extracts the username string from the 'username.github.io' hostname structure
+            // Safely extracts the username string and forces uppercase transformation to comply with case-sensitive API bounds
             const host = window.location.hostname;
-            let discoveredUser = "SRINIVASTA"; // Default fallback sandbox configuration
+            let discoveredUser = "SRINIVASTA"; // Fail-safe production fallback signature
 
             if (host.includes(".github.io")) {
                 const parts = host.split('.');
                 if (parts.length > 0 && parts[0] !== "localhost" && parts[0] !== "127") {
-                    discoveredUser = parts[0];
+                    discoveredUser = parts[0].toUpperCase(); // Enforces all-caps signature conversion
                 }
             }
 
-            // Sync the warehouse title to represent the discovered developer path
-            headline.innerText = `🚀 ${discoveredUser.toUpperCase()} ENTERPRISE PRODUCTION PORTFOLIO`;
+            headline.innerText = `🚀 ${discoveredUser} ENTERPRISE PRODUCTION PORTFOLIO`;
 
             try {
-                // Route the data fetch pipeline dynamically to match the active user domain asset via JSON wrap proxy
+                // Route the data fetch pipeline dynamically via an optimized proxy connection to preserve client uptime
                 const secureProxyRoute = `https://allorigins.win{encodeURIComponent('https://github.com' + discoveredUser + '/repos?per_page=100&sort=updated')}`;
                 
                 const response = await fetch(secureProxyRoute);
@@ -128,7 +127,7 @@
                     statusBanner.innerText = `⚙️ LIVE AUTOMATED SYNC OPERATIONAL: ${repos.length} REPOSITORIES MAP-SORTED ACROSS 5 INFRASTRUCTURE SECTORS`;
                     statusBanner.className = "text-center py-4 border border-dashed border-emerald-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-emerald-400 font-bold uppercase tracking-wider";
                 } else {
-                    throw new Error("Empty dashboard configurations parsed.");
+                    throw new Error("Empty configurations parsed.");
                 }
             } catch (error) {
                 statusBanner.innerText = `⚠️ PIPELINE CRITICAL FAULT: ALLORIGINS TUNNEL OUTAGE. GITHUB API ENFORCED BLOCK.`;
@@ -152,7 +151,7 @@
                 const desc = repo.description || "No public packaging manifest specifications logged.";
                 const context = `${name.toLowerCase()} ${desc.toLowerCase()}`;
 
-                // 🧠 Multi-Division Keyword Mapping Parameters
+                // Multi-Division Keyword Mapping Parameters
                 let sector = "tools"; 
                 
                 if (["underwriting", "credit", "risk", "banking", "finance", "capital", "vantage", "scorecard", "ledger", "tax", "invoice", "stock", "nifty", "pulse"].some(w => context.includes(w))) {
