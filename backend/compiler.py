@@ -1,98 +1,75 @@
+# https://github.com/SRINIVASTA/ai-portfolio-engine-/blob/main/backend/compiler.py
 import os
 import re
-import requests
-from bs4 import BeautifulSoup
-
-def fetch_live_streamlit_link_from_web(username, repo_name):
-    """
-    Fallback web scraper that parses the GitHub repository frontend HTML
-    to extract the actual Streamlit URL from the 'About' section sidebar.
-    """
-    url = f"https://github.com{username}/{repo_name}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-    try:
-        response = requests.get(url, headers=headers, timeout=5)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            link_element = soup.find('a', href=lambda h: h and '.streamlit.app' in h)
-            if link_element:
-                return link_element['href'].strip().split('?')[0].rstrip('/') + '/'
-    except Exception:
-        pass
-    return None
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Advanced compiler engine matching the official AI-Portfolio-Hub structure.
-    Guarantees perfect Streamlit link mapping by explicitly building the live URL
-    from the checked repository name, resolving alignment errors.
+    Features a strict markdown block scrubber to strip away residual terminal
+    setup text blocks (git clone, cd, pip install) leaking from README.md records.
     """
     featured_html = ""
     tracked_html = ""
     unassigned_html = ""
     valid_idx = 0
     
-    # Pristine user handle fallback sanity check
+    # Clean up the username parameter to prevent path fractures
     clean_user = str(username).strip().strip('/')
-    if not clean_user or len(clean_user) < 2 or clean_user.lower() == "none" or "ai-portfolio" in clean_user.lower():
-        clean_user = "SRINIVASTA"
-        
+    
     for repo in ml_sorted_repos:
         name = repo.get('name', 'Unnamed Asset').strip()
         lang = repo.get('language', 'Python')
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
+        # Skip processing completely if description field is empty
         if not desc or "no public description" in str(desc).lower():
             continue
             
         desc_str = str(desc).strip()
 
-        # Dynamic markdown scrub blocks to erase text installation prompts
+        # =========================================================================
+        # 🎯 CRITICAL SYSTEM SCRUBBER: REMOVE RESIDUAL TERMINAL TEXT BLOCKS
+        # =========================================================================
+        # If the backend scraper accidentally pulled markdown terminal setup text,
+        # we split the string at the terminal indicators and throw that text away.
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "Clone the repository"]:
             if filter_term in desc_str:
+                # Isolate only the clean text before the terminal instructions start
                 desc_str = desc_str.split(filter_term)[0].strip()
                 
-        desc_str = re.sub(r'(###?\s+.*|#.*)', '', desc_str)
-        desc_str = re.sub(r'(-\s+\*\*.*|\*\s+\*\*.*)', '', desc_str)
+        # Clean up any residual markdown headers, bullet symbols, or dangling lines
+        desc_str = re.sub(r'(###?\s+.*|#.*)', '', desc_str) # Strips markdown headings
+        desc_str = re.sub(r'(-\s+\*\*.*|\*\s+\*\*.*)', '', desc_str) # Strips list headers
         desc_str = desc_str.strip().rstrip(':-#* ')
         
+        # Double check to verify we still have a usable description card paragraph after filtering
         if len(desc_str) < 5:
             continue
+        # =========================================================================
 
-        # =========================================================================
-        # 🎯 CRITICAL SYSTEM RESOLVER: EXACT MATCH ROUTING POLICY
-        # =========================================================================
-        # Try to pull the raw layout homepage field first
-        live_streamlit_url = repo.get('homepage', '')
+        # 🤖 1. DYNAMICALLY EXTRACT LIVE WEBSITE LINK FROM METADATA
+        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
         
-        # If empty or unverified, try pulling it directly from the GitHub web scraper
-        if not live_streamlit_url or not str(live_streamlit_url).startswith('http'):
-            live_streamlit_url = fetch_live_streamlit_link_from_web(clean_user, name)
-            
-        # 🧠 STRUCTURAL ALIGNMENT ENFORCEMENT MATCH:
-        # If the links are still mismatched or wrong, we explicitly stitch it from the repository name
-        if not live_streamlit_url or name.lower() not in str(live_streamlit_url).lower():
-            # Handle unique random subdomains generated by Streamlit Community Cloud
-            if "policy-engine" in name.lower():
+        if extracted_url_match:
+            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
+            desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+        else:
+            # Domain path map configuration fallbacks if no explicit url is declared
+            if "moder" in name.lower():
                 live_streamlit_url = "https://streamlit.app"
-            elif "stock-prediction" in name.lower():
+            elif "creditpulse" in name.lower():
                 live_streamlit_url = "https://streamlit.app"
-            elif "portfolio-engine" in name.lower():
+            elif "bhojan" in name.lower() or "smart-bhojan" in name.lower():
+                live_streamlit_url = "https://streamlit.app"
+            elif "vantage" in name.lower() or "capital" in name.lower():
+                live_streamlit_url = "https://streamlit.app"
+            elif "stock" in name.lower():
                 live_streamlit_url = "https://streamlit.app"
             else:
-                # Direct canonical matching construction: https://streamlit.app
-                live_streamlit_url = f"https://{name.lower()}.streamlit.app/"
+                live_streamlit_url = "https://streamlit.app"
 
-        # Final string validation format
-        live_streamlit_url = str(live_streamlit_url).replace('"', '').replace("'", "").strip()
-        if not live_streamlit_url.endswith('/'):
-            live_streamlit_url += '/'
-        # =========================================================================
-
-        # 🤖 PARSE REREPOSITORY TOPICS
+        # 🤖 2. PARSE REREPOSITORY TOPICS
         topics = repo.get('topics', [])
         if not topics:
             if "moder" in name.lower():
@@ -108,24 +85,22 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
 
         label_text = "Mortgage Policy Engine" if "moder" in name.lower() else "FinTech Credit Risk Engine" if "creditpulse" in name.lower() else "AI Price Predictor System" if "stock" in name.lower() else "AI Framework System"
         icon_marker = "🏦 ⚖️ 🚀" if "moder" in name.lower() else "🌐 📊 🚀" if "creditpulse" in name.lower() else "📈 📉 📊" if "stock" in name.lower() else "⚡ 🤖 🚀"
+
         # --- TRACK 1: FEATURED HIGH-DENSITY PROJECTS LAYER ---
         if valid_idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower() or "moder" in name.lower() or "creditpulse" in name.lower() or "stock" in name.lower()):
             featured_html += f"""
-                <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:30px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                         <h3 style="margin:0; color:#fff; font-size:1.25rem;">{icon_marker} {name}: {label_text}</h3>
-                        <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-weight:600; font-size:14px;">💻 View Source Code ↗</a>
+                        <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-weight:600; font-size:14px;">💻 View Source Code ↗</a>
                     </div>
                     <div style="margin:8px 0 12px 0;">{topics_html}</div>
-                    <p style="color:#8b949e; line-height:1.6; margin:0 0 20px 0; font-size:14.5px;">{desc_str}</p>
+                    <p style="color:#8b949e; line-height:1.6; margin:0 0 15px 0; font-size:14.5px;">{desc_str}</p>
                     
-                    <a href="{live_streamlit_url}" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:14px; margin-bottom:20px; box-shadow: 0 4px 12px rgba(35,134,54,0.3);">🌐 Live Interactive Web App: Launch Live Streamlit Dashboard ↗</a>
-                    
-                    <iframe src="{live_streamlit_url}?embed=true" style="width:100%; height:550px; border:none; border-radius:8px; background:#ffffff; margin-top:5px;" sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads" referrerpolicy="no-referrer"></iframe>
+                    <a href="{live_streamlit_url}" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px;">🌐 Live Interactive Web App: Launch Live Streamlit Dashboard</a>
                 </div>
             """
             valid_idx += 1
-
         # --- TRACK 2: CORE REPOSITORIES GRID ---
         elif valid_idx < 10:
             track_title = "📊 FinTech Asset" if tag == "capital_vantage" else "🛠️ Business Intelligence" if tag == "transition_control" else "📁 Core Track Component"
@@ -142,11 +117,10 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                         <div style="font-size:12px; color:#8b949e; font-family:monospace; margin-bottom:10px;">{track_title}</div>
                         <p style="color:#8b949e; font-size:13.5px; line-height:1.5; margin:0 0 15px 0;">{desc_str}</p>
                         <div style="margin-bottom:12px;">{topics_html}</div>
-                        <iframe src="{live_streamlit_url}?embed=true" style="width:100%; height:320px; border:none; border-radius:6px; background:#ffffff; margin-top:10px;" sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts" referrerpolicy="no-referrer"></iframe>
                     </div>
                     <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                         <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                        <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                        <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                     </div>
                 </div>
             """
@@ -156,7 +130,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
@@ -184,7 +158,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 <p style="margin:4px 0 0 0; color:#58a6ff; font-size:13px; font-family:monospace;">📍 Visakhapatnam, India | 📧 tasrinivass@gmail.com</p>
             </div>
             <div style="background:#161b22; border:1px solid #30363d; padding:12px; border-radius:8px; font-family:monospace; font-size:12px; color:#ffb454;">
-                🔒 Verified Matrix Core Layer Active (User: {clean_user})
+                🔒 Verified Matrix Core Layer Active
             </div>
         </header>
 
