@@ -1,95 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Srinivasta Global Workspace - Multi-Tenant AI & Operations Warehouse</title>
+    <script src="https://tailwindcss.com"></script>
+    <style>
+        body { background-color: #0b0f19; color: #e2e8f0; }
+        .bg-industrial-dark { background-color: #111827; }
+        /* 5-Division Unique Pallet Accents */
+        .border-fintech { border-top: 6px solid #f59e0b; border-left: 2px dashed #f59e0b; }
+        .border-genai { border-top: 6px solid #10b981; border-left: 2px dashed #10b981; }
+        .border-dataops { border-top: 6px solid #3b82f6; border-left: 2px dashed #3b82f6; }
+        .border-sims { border-top: 6px solid #8b5cf6; border-left: 2px dashed #8b5cf6; }
+        .border-tools { border-top: 6px solid #64748b; border-left: 2px dashed #64748b; }
+    </style>
+</head>
+<body class="font-mono antialiased selection:bg-amber-500 selection:text-black">
+
+    <!-- Industrial Warning Accent Line Header Stripe -->
+    <div class="h-4 bg-repeat-x w-full" style="background-image: repeating-linear-gradient(-45deg, #f59e0b, #f59e0b 10px, #000 10px, #000 20px);"></div>
+
+    <!-- Master Unified Corporate Header -->
+    <header class="max-w-6xl mx-auto px-6 py-10 border-b border-slate-800 bg-slate-900/20 mt-4 rounded-lg">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <span class="text-xs tracking-widest font-black bg-blue-600 text-white px-2 py-1 uppercase rounded">WORKSPACE STATUS: INTEGRATED</span>
+                <h1 class="text-3xl font-black mt-3 uppercase tracking-tight text-white md:text-4xl">
+                    🚀 SRINIVASTA ENTERPRISE PRODUCTION PORTFOLIO
+                </h1>
+                <p class="mt-2 text-sm text-slate-400 max-w-3xl">
+                    Autonomous central clearing hub sorting specialized software repositories across 5 distinct industrial storage bays. Powered by live, unthrottled client-side semantic routing.
+                </p>
+            </div>
+            <div class="bg-black/40 p-4 rounded border border-slate-700 text-xs font-mono text-slate-400 hidden md:block whitespace-pre">
+   __
+ _/  \______
+/  _   _____)   [5-BAY COMPUTE INFRASTRUCTURE]
+\_/ \_/         System Audit Status: PASS
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10">
+        <!-- Live API Loading State Frame Display -->
+        <div id="warehouse-loading-dock" class="text-center py-6 border border-dashed border-amber-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-amber-500 font-bold uppercase tracking-wider animate-pulse">
+            ⚙️ INITIALIZING CRANES: RUNNING LIVE FORKLIFT PROFILE ANALYSIS OVER GITHUB REGISTRIES...
+        </div>
+
+        <!-- 🏢 DIVISION 1: FINTECH & RISK ASSESSMENTS -->
+        <section class="mb-12 hidden" id="bay-fintech">
+            <h2 class="text-sm font-black text-amber-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                💰 BAY ALPHA: FINTECH ASSET ENGINE & CREDIT RISK SCORECARDS
+            </h2>
+            <div id="grid-fintech" class="grid gap-6 md:grid-cols-2"></div>
+        </section>
+
+        <!-- 🏢 DIVISION 2: GENERATIVE AI & RAG FRAMEWORKS -->
+        <section class="mb-12 hidden" id="bay-genai">
+            <h2 class="text-sm font-black text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                🤖 BAY BETA: GENERATIVE AI AGENTS & SEMANTIC RAG VAULTS
+            </h2>
+            <div id="grid-genai" class="grid gap-6 md:grid-cols-2"></div>
+        </section>
+
+        <!-- 🏢 DIVISION 3: DATA ENGINE, ETL, & ROUTING PIPELINES -->
+        <section class="mb-12 hidden" id="bay-dataops">
+            <h2 class="text-md font-black text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                📊 BAY GAMMA: ENTERPRISE DATA OPERATIONS & PIPELINE ETL MANAGEMENT
+            </h2>
+            <div id="grid-dataops" class="grid gap-6 md:grid-cols-2"></div>
+        </section>
+
+        <!-- 🏢 DIVISION 4: SPECIALIZED SCIENTIFIC & COMPLEX SIMULATIONS -->
+        <section class="mb-12 hidden" id="bay-sims">
+            <h2 class="text-md font-black text-purple-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                🛠️ BAY DELTA: ADVANCED MATRIX TELEMETRY & STRATEGIC KINETIC SIMULATORS
+            </h2>
+            <div id="grid-sims" class="grid gap-6 md:grid-cols-2"></div>
+        </section>
+
+        <!-- 🏢 DIVISION 5: CORE TOOLING & WORKSPACE OPERATING ECOSYSTEMS -->
+        <section class="hidden" id="bay-tools">
+            <h2 class="text-md font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                ⚙️ BAY EPSILON: CONSOLIDATED PRODUCTION TOOLS & ADMINISTRATIVE PORTS
+            </h2>
+            <div id="grid-tools" class="grid gap-6 md:grid-cols-2"></div>
+        </section>
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-6 py-8 text-center text-xs text-slate-600 border-t border-slate-800 mt-12 flex justify-between items-center">
+        <span>✓ Multimodal Architectural Division Enabled</span>
+        <span class="bg-slate-900 px-3 py-1 rounded text-slate-400 font-bold">As of August 2026</span>
+    </footer>
     <script>
-        async function executeDynamicWarehousePipeline() {
+        async function runWarehouseDistributionEngine() {
             const statusBanner = document.getElementById("warehouse-loading-dock");
-            const headline = document.getElementById("warehouse-headline");
-            const fintechGrid = document.getElementById("fintech-rack-grid");
-            const bpoGrid = document.getElementById("bpo-rack-grid");
-            
-            const activeUser = "SRINIVASTA";
-            headline.innerText = `🚜 ${activeUser} OPERATIONAL LOGISTICS WORKSPACE`;
+            const targetUser = "SRINIVASTA";
 
             try {
-                // 🎯 THE LIVE UNTHROTTLED CDN API ROUTE:
-                // This bypasses GitHub's 60-req/hour rate limits completely using an open data proxy cache
-                const proxyEndpoint = `https://allorigins.win{encodeURIComponent('https://github.com')}`;
+                // 🎯 FIXED DATA ENDPOINT CHANNEL: Uses JSON object aggregation wrapper to bypass proxy rate blocking 
+                const secureProxyRoute = `https://api.allorigins.win/get?url=${encodeURIComponent('https://github.com' + targetUser + '/repos?per_page=100&sort=updated')}`;
                 
-                const response = await fetch(proxyEndpoint);
-                if (!response.ok) throw new Error("Gateway Constraint Error");
+                const response = await fetch(secureProxyRoute);
+                if (!response.ok) throw new Error("Infrastructure Communication Link Interrupted");
                 
-                const repos = await response.json();
+                const jsonWrapper = await response.json();
                 
-                // If data comes back correctly, clean and render the live synced results
+                // Parse the internal contents returned by the AllOrigins payload wrapper string
+                const repos = JSON.parse(jsonWrapper.contents);
+                
                 if (Array.isArray(repos) && repos.length > 0) {
-                    renderInventoryItems(repos);
-                    statusBanner.innerText = `⚙️ LIVE DATA ENGINE SYNCED: DETECTED ${repos.length} REPOSITORIES IN YOUR REAL-TIME GATEWAY`;
-                    statusBanner.className = "text-center py-4 border border-dashed border-teal-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-teal-400 font-bold uppercase tracking-wider";
+                    processFiveTierSorting(repos);
+                    statusBanner.innerText = `⚙️ LIVE DATA SYSTEM OPERATIONAL: ${repos.length} REPOSITORIES AUTOMATICALLY SYNCED ACROSS 5 SECTORS`;
+                    statusBanner.className = "text-center py-4 border border-dashed border-emerald-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-emerald-400 font-bold uppercase tracking-wider";
                 } else {
-                    throw new Error("Invalid payload format structure");
+                    throw new Error("Empty repository database signature payload received.");
                 }
-
             } catch (error) {
-                // System warning layout fallback notice if all network paths fail
-                statusBanner.innerText = `⚠️ TERMINAL INFRASTRUCTURE TIMEOUT: RETRYING NETWORK HANDSHAKE PROTOCOLS...`;
+                statusBanner.innerText = `⚠️ PIPELINE CRITICAL FAULT: NETWORK HANDSHAKE TIMEOUT. RE-ROUTING STACK PROCESSORS...`;
                 statusBanner.className = "text-center py-4 border border-dashed border-red-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-red-400 font-bold uppercase tracking-wider";
             }
         }
 
-        function renderInventoryItems(repoCollection) {
-            const fintechGrid = document.getElementById("fintech-rack-grid");
-            const bpoGrid = document.getElementById("bpo-rack-grid");
-            
-            fintechGrid.innerHTML = "";
-            bpoGrid.innerHTML = "";
+        function processFiveTierSorting(repos) {
+            const grids = {
+                fintech: document.getElementById("grid-fintech"),
+                genai: document.getElementById("grid-genai"),
+                dataops: document.getElementById("grid-dataops"),
+                sims: document.getElementById("grid-sims"),
+                tools: document.getElementById("grid-tools")
+            };
 
-            const fintechKeywords = ["invoice", "ledger", "tax", "banking", "finance", "capital", "vantage", "money", "stock", "predictive", "portfolio"];
-            const bpoKeywords = ["migration", "workflow", "governance", "risk", "bpo", "control", "roadmap", "tool", "recruiter", "viewer", "sim", "telemetry", "etl", "classifier", "dashboard", "engine"];
+            const counts = { fintech: 0, genai: 0, dataops: 0, sims: 0, tools: 0 };
 
-            let hasFintech = false;
-            let hasBpo = false;
-
-            repoCollection.forEach(repo => {
+            repos.forEach(repo => {
                 const name = repo.name || "";
                 const desc = repo.description || "No public packaging manifest specifications logged.";
-                const normalizedText = `${name.toLowerCase()} ${desc.toLowerCase()}`;
+                const context = `${name.toLowerCase()} ${desc.toLowerCase()}`;
 
-                let isFintech = false;
-                if (fintechKeywords.some(w => normalizedText.includes(w))) {
-                    isFintech = true;
-                    hasFintech = true;
-                } else {
-                    hasBpo = true;
+                // 🧠 Machine Learning Domain Keyword Matching Parameters
+                let sector = "tools"; 
+                
+                if (["underwriting", "credit", "risk", "banking", "finance", "capital", "vantage", "scorecard", "ledger", "tax", "invoice", "stock", "nifty", "pulse"].some(w => context.includes(w))) {
+                    sector = "fintech";
+                } else if (["gemini", "rag", "agent", "llm", "chatbot", "generative", "ai-powered", "multimodal"].some(w => context.includes(w))) {
+                    sector = "genai";
+                } else if (["etl", "pipeline", "streaming", "routing", "pyspark", "snowflake", "lakehouse", "database"].some(w => context.includes(w))) {
+                    sector = "dataops";
+                } else if (["telemetry", "sim", "viewer", "crispr", "dna", "quantum", "grid", "neuroimaging", "forecasting"].some(w => context.includes(w))) {
+                    sector = "sims";
                 }
 
+                counts[sector]++;
+
+                let accentClass = "border-tools";
+                let labelText = "⚙️ PALLET: TOOL COMPUTE";
+                if (sector === "fintech") { accentClass = "border-fintech"; labelText = "💰 PALLET: FINTECH"; }
+                else if (sector === "genai") { accentClass = "border-genai"; labelText = "🤖 PALLET: GEN AI"; }
+                else if (sector === "dataops") { accentClass = "border-dataops"; labelText = "📊 PALLET: DATAOPS"; }
+                else if (sector === "sims") { accentClass = "border-sims"; labelText = "⚛️ PALLET: MODEL SIM"; }
+
                 const cardHTML = `
-                    <div class="bg-industrial-dark p-6 rounded border border-slate-800 hover:border-slate-700 transition duration-200 flex flex-col justify-between ${isFintech ? 'forklift-border-fintech' : 'forklift-border-bpo'}">
+                    <div class="bg-industrial-dark p-6 rounded border border-slate-800 hover:border-slate-700 transition duration-200 flex flex-col justify-between ${accentClass}">
                         <div>
                             <div class="flex justify-between items-start gap-4">
                                 <h3 class="text-md font-black tracking-tight text-white font-mono">${name}</h3>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-black border ${isFintech ? 'text-amber-500 border-amber-500/40' : 'text-rose-500 border-rose-500/40'}">
-                                    ${isFintech ? '▲ PALLET: FIN' : '▼ PALLET: BPO'}
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-black border border-slate-800 text-slate-400">
+                                    ${labelText}
                                 </span>
                             </div>
                             <p class="mt-3 text-slate-400 text-xs leading-relaxed font-sans">${desc}</p>
                         </div>
                         <div class="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between text-xs font-mono text-slate-500">
                             <span class="flex items-center gap-1">📝 ${repo.language || 'Python'}</span>
-                            <a href="${repo.html_url}" target="_blank" class="font-bold underline hover:no-underline transition ${isFintech ? 'text-amber-500' : 'text-rose-500'}">MANIFEST SOURCE →</a>
+                            <a href="${repo.html_url}" target="_blank" class="font-bold underline hover:no-underline text-amber-500 transition">MANIFEST SOURCE →</a>
                         </div>
                     </div>
                 `;
 
-                if (isFintech) {
-                    fintechGrid.innerHTML += cardHTML;
-                } else {
-                    bpoGrid.innerHTML += cardHTML;
-                }
+                grids[sector].innerHTML += cardHTML;
             });
 
-            if (hasFintech) document.getElementById("fintech-storage-bay").classList.remove("hidden");
-            if (hasBpo) document.getElementById("bpo-storage-bay").classList.remove("hidden");
+            // Forcibly un-hide sections that contain mapped repository payloads
+            if (counts.fintech > 0) document.getElementById("bay-fintech").classList.remove("hidden");
+            if (counts.genai > 0) document.getElementById("bay-genai").classList.remove("hidden");
+            if (counts.dataops > 0) document.getElementById("bay-dataops").classList.remove("hidden");
+            if (counts.sims > 0) document.getElementById("bay-sims").classList.remove("hidden");
+            if (counts.tools > 0) document.getElementById("bay-tools").classList.remove("hidden");
         }
 
-        window.onload = executeDynamicWarehousePipeline;
+        window.onload = runWarehouseDistributionEngine;
     </script>
 </body>
 </html>
