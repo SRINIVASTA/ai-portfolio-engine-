@@ -2,7 +2,6 @@ import streamlit as st
 import requests 
 import sys
 import os
-import json
 
 # --- CRITICAL WORKSPACE MODULE RESOLUTION SYSTEM ---
 root_workspace = os.path.dirname(os.path.abspath(__file__))
@@ -128,26 +127,25 @@ else:
    ml_sorted_repos = sorted(st.session_state.repos_data, key=get_ml_priority)
 
    # =========================================================================
-   # 🤖 UPGRADED BLOB LINK ENGINE INTEGRATION: BYPASSES WEB SECURITY BLOCKS
+   # 🤖 THE ZERO-TOUCH DISK AUTOMATION OVERRIDE & WEB PORT LINK HOOK
    # =========================================================================
    from backend.compiler import auto_generate_portfolio_index
    raw_compiled_html = auto_generate_portfolio_index(username, ml_sorted_repos)
    
-   json_escaped_html = json.dumps(raw_compiled_html)
-   st.info("🎉 Website generation complete! Click the custom button below to open your styled interface:")
-   st.markdown(
-       f"""
-       <button onclick='
-           var htmlCode = {json_escaped_html};
-           var blob = new Blob([htmlCode], {{type: "text/html"}});
-           var url = URL.createObjectURL(blob);
-           window.open(url, "_blank");
-       ' style="background-color:#238636; color:white; padding:12px 24px; border-radius:8px; border:none; font-weight:bold; font-size:16px; margin-bottom:20px; cursor:pointer; box-shadow:0 4px 6px rgba(0,0,0,0.2); display:inline-block;">
-           🌐 Open Generated Website (`index.html`) ↗
-       </button>
-       """, 
-       unsafe_allow_html=True
+   st.write("---")
+   st.subheader("🎉 Portfolio Website Generation Active!")
+   st.download_button(
+       label="📥 Download and Save My Portfolio (`index.html`)",
+       data=raw_compiled_html,
+       file_name="index.html",
+       mime="text/html",
+       use_container_width=True
    )
+   
+   with st.expander("👀 View Interactive Portfolio Hub Layout Directly Inside App", expanded=True):
+       import streamlit.components.v1 as components
+       components.html(raw_compiled_html, height=800, scrolling=True)
+   st.write("---")
    # =========================================================================
 
    for repo in ml_sorted_repos:
