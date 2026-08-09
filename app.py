@@ -26,6 +26,8 @@ if "vault_context" not in st.session_state:
  st.session_state.vault_context = "" 
 if "niche_brand" not in st.session_state:
  st.session_state.niche_brand = "general"
+if "sync_completed" not in st.session_state:
+ st.session_state.sync_completed = False
 
 # --- LANDING PAGE (SaaS Entry Point) --- 
 if not st.session_state.logged_in: 
@@ -56,18 +58,18 @@ if not st.session_state.logged_in:
    st.session_state.vault_context = "" 
    st.session_state.chat_history = [] 
    st.session_state.niche_brand = "general"
+   st.session_state.sync_completed = False
    st.rerun() 
   else: 
    st.error("Please provide a valid developer username to proceed.") 
 
 # --- PORTFOLIO DASHBOARD --- 
-# --- PORTFOLIO DASHBOARD --- 
 else: 
- # 🎯 ABSOLUTE RUNTIME SHIELD: Forcibly catches and strips out malformed cached items
+ # 🎯 ABSOLUTE RUNTIME SHIELD: Completely extract a single word handle, stripping protocols and domains
  session_user = str(st.session_state.username).strip()
  if "/" in session_user:
      session_user = [piece for piece in session_user.split("/") if piece][-1]
-     
+ 
  session_user = session_user.replace("github.com", "").replace("https:", "").replace("http:", "")
  session_user = session_user.strip("/")
  session_user = session_user.strip()
@@ -98,6 +100,7 @@ else:
    st.session_state.chat_history = [] 
    st.session_state.vault_context = "" 
    st.session_state.niche_brand = "general"
+   st.session_state.sync_completed = False
    st.rerun() 
  
  st.write("`✓ Verified Production Architecture Integration Enabled`") 
@@ -108,8 +111,15 @@ else:
  with left_layout: 
   st.header("📁 Core Tracked Repositories") 
   if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"): 
-   # 🎯 FIX: Pass the completely sanitized username straight to the backend pipeline
+   # 🎯 FIX: Passes a pristine, single-string handle directly to the backend pipeline
    run_dynamic_sync_pipeline(username)
+   # Mark the synchronization state parameter as True before hitting rerun
+   st.session_state.sync_completed = True
+   st.rerun()
+   
+  # 🎯 CHANGED CONDITIONAL LOGIC: If sync completed successfully, don't show the info placeholder
+  if st.session_state.sync_completed:
+   st.success("Repository context matrices successfully synced and written to session memory!")
   else: 
    st.info("Click the Sync button above to scrape public GitHub API records dynamically.") 
    
