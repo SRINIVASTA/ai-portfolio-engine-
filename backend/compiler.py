@@ -1,10 +1,9 @@
 import os
-import base64
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
-    Interceptors the sync array and outputs the static site string. 
-    Returns a browser-ready base64 string to create an opening hyperlink tab.
+    Scrapes sync matrices, outputs static site files, and returns a safe,
+    browser-compliant HTML payload block for opening tab links.
     """
     featured_html = ""
     tracked_html = ""
@@ -17,20 +16,22 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', 'No public description matrix provided.')
         tag = repo.get('tag', 'general')
         
+        # --- FEATURED TRACKS ---
         if idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower()):
             icon = "📈 💰 🚀" if tag == "capital_vantage" else "📈 📊 🚀" if tag == "transition_control" else "🖼️ ⚡ 🤖"
-            label = "GenAI Financial Intelligence" if tag == "capital_vantage" else "AI-Driven BPO Intelligence" if tag == "transition_control" else "Streamlit Application Platform"
+            label = "GenAI Financial Intelligence" if tag == "capital_vantage" else "AI-Driven BPO Intelligence" if tag == "transition_control" else "Streamlit Application"
             
             featured_html += f"""
                 <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:20px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                         <h3 style="margin:0; color:#fff; font-size:1.25rem;">{icon} {name}: {label}</h3>
-                        <a href="https://github.com{username}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-weight:600;">💻 View Source Code ↗</a>
+                        <a href="https://github.com{username}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-weight:600; font-size:14px;">💻 View Source Code ↗</a>
                     </div>
-                    <p style="color:#8b949e; line-height:1.6; margin:15px 0;">{desc}</p>
-                    <a href="https://streamlit.app" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:14px;">Launch Live Platform</a>
+                    <p style="color:#8b949e; line-height:1.6; margin:15px 0; font-size:15px;">{desc}</p>
+                    <a href="https://streamlit.app" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px;">Launch Live Platform</a>
                 </div>
             """
+        # --- STANDARD CORE TRACKS ---
         elif idx < 10:
             track_title = "📊 Fintech Asset" if tag == "capital_vantage" else "🛠️ BPO System" if tag == "transition_control" else "📁 Core Track Component"
             badge_bg = "#341212" if tag == "capital_vantage" else "#123034" if tag == "transition_control" else "#21262d"
@@ -40,22 +41,23 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:start; gap:10px; margin-bottom:8px;">
-                            <h4 style="margin:0; color:#fff; font-size:1.1rem;">📈 {name}</h4>
-                            <span style="background:{badge_bg}; color:{badge_color}; border:1px solid rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px; font-size:11px; font-family:monospace;">{lang}</span>
+                            <h4 style="margin:0; color:#fff; font-size:1.1rem; max-width:70%; overflow:hidden; text-overflow:ellipsis;">{name}</h4>
+                            <span style="background:{badge_bg}; color:{badge_color}; border:1px solid rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px; font-size:11px; font-family:monospace; white-space:nowrap;">{lang}</span>
                         </div>
                         <div style="font-size:12px; color:#8b949e; font-family:monospace; margin-bottom:10px;">{track_title} | ⭐ Stars: {stars}</div>
-                        <p style="color:#8b949e; font-size:14px; line-height:1.5; margin:0 0 15px 0;">{desc}</p>
+                        <p style="color:#8b949e; font-size:13.5px; line-height:1.5; margin:0 0 15px 0;">{desc}</p>
                     </div>
                     <div style="border-top:1px solid #21262d; padding-top:12px; text-align:right;">
                         <a href="https://github.com{username}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                     </div>
                 </div>
             """
+        # --- LONG TAIL UTILITIES ---
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com{username}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block; transition:0.2s;">
-                    <div style="color:#fff; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
+                <a href="https://github.com{username}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                    <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
             """
@@ -103,11 +105,9 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
 </body>
 </html>"""
 
-    # Write file to local cloud workspace disk space safely
+    # Keep writing locally on server disk to maintain tree file integrity
     with open("index.html", "w", encoding="utf-8") as file:
         file.write(full_html_output)
         
-    # 4. CRITICAL ATOMATION LINK BUILDER STEP: Convert the full file to base64
-    b64_encoded_html = base64.b64encode(full_html_output.encode('utf-8')).decode('utf-8')
-    data_uri_link = f"data:text/html;base64,{b64_encoded_html}"
-    return data_uri_link
+    # Return raw text safely to prevent data string blocks from getting cropped
+    return full_html_output
