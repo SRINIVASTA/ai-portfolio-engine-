@@ -37,7 +37,7 @@ if not st.session_state.logged_in:
  st.subheader("Deploy a self-updating website with an interactive recruiter chatbot trained on your code.") 
  st.write("---") 
  
- st.write("### Multi-User Gateway Gateway Authentication") 
+ st.write("### Multi-User Gateway Authentication") 
  input_username = st.text_input("Enter GitHub Username or Profile Link:", placeholder="e.g., srinivasta or https://github.com") 
  
  if st.button("Sign In to Portfolio", type="primary"): 
@@ -127,10 +127,18 @@ else:
    ml_sorted_repos = sorted(st.session_state.repos_data, key=get_ml_priority)
 
    # =========================================================================
-   # 🤖 THE ZERO-TOUCH DISK AUTOMATION OVERRIDE HOOK
+   # 🤖 THE ZERO-TOUCH DISK AUTOMATION OVERRIDE & WEB PORT LINK HOOK
    # =========================================================================
    from backend.compiler import auto_generate_portfolio_index
-   auto_generate_portfolio_index(username, ml_sorted_repos)
+   web_tab_link = auto_generate_portfolio_index(username, ml_sorted_repos)
+   
+   st.info("🎉 Website generation complete! Click the link below to view your full styled interface:")
+   st.markdown(
+       f"""<a href="{web_tab_link}" target="_blank" style="display:inline-block; background-color:#238636; color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:16px; margin-bottom:20px; box-shadow:0 4px 6px rgba(0,0,0,0.2);">
+           🌐 Launch My Portfolio Website (`index.html`) ↗
+       </a>""", 
+       unsafe_allow_html=True
+   )
    # =========================================================================
 
    for repo in ml_sorted_repos:
@@ -175,26 +183,3 @@ else:
      bot_reply = process_javascript_chat_engine(username, recruiter_prompt, user_api_key)
      st.write(bot_reply) 
      st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
-
-# --- Place this function at the bottom of your app.py file ---
-def preview_generated_website_surface():
-    """
-    Reads the freshly auto-generated index.html directly from the server disk 
-    and presents it as an immersive canvas preview block at the bottom of the page.
-    """
-    import os
-    import streamlit.components.v1 as components
-
-    if os.path.exists("index.html"):
-        st.write("---")
-        st.header("👀 Live Automated Portfolio Preview (`index.html`)")
-        
-        # Read the file background processes compiled
-        with open("index.html", "r", encoding="utf-8") as f:
-            compiled_raw_html = f.read()
-            
-        # Draw the responsive layout inside an isolated sandbox component block
-        components.html(compiled_raw_html, height=1200, scrolling=True)
-
-# Call the preview function inside your main file rendering loops
-preview_generated_website_surface()
