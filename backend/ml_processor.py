@@ -82,12 +82,14 @@ def run_dynamic_sync_pipeline(username):
                 headers["Authorization"] = f"token {pat_token}" 
  
             # Execute network request over the verified API route
+            # Execute network request over the verified API route
             response = requests.get(target_url, headers=headers) 
             if response.status_code == 200: 
                 repos = response.json() 
                 if isinstance(repos, list): 
                     st.success(f"Successfully tracked and parsed {len(repos)} public repositories!") 
                     temp_context = [] 
+                    processed_repos_list = []
                     
                     classifier_pipeline = load_ml_classifier()
                     if not classifier_pipeline: 
@@ -101,37 +103,31 @@ def run_dynamic_sync_pipeline(username):
                         assigned_tag = "general"
                         if classifier_pipeline and desc:
                             predicted = classifier_pipeline.predict([text_context])
-                            assigned_tag = predicted
-                            if predicted == "capital_vantage": fintech_weight += 1
-                            elif predicted == "transition_control": bpo_weight += 1
+                            # 🎯 CRITICAL STRIP LAYER: Extracts the pure text value from the ML array format
+                            if hasattr(predicted, '__iter__') and not isinstance(predicted, str):
+                                assigned_tag = str(predicted[0])
+                            else:
+                                assigned_tag = str(predicted)
+                                
+                            if assigned_tag == "capital_vantage": fintech_weight += 1
+                            elif assigned_tag == "transition_control": bpo_weight += 1
                           
-                        with st.container(border=True): 
-                            if assigned_tag == "capital_vantage": 
-                                st.subheader(f"📈 {repo['name']} [Fintech Asset]")
-                            elif assigned_tag == "transition_control": 
-                                st.subheader(f"🛠️ {repo['name']} [BPO System]")
-                            else: 
-                                st.subheader(repo['name']) 
-                               
-                            st.write(f"**Stars:** ⭐ {repo['stargazers_count']} | **Language:** 📝 {repo['language'] or 'Markdown'}")
-                            st.write(repo['description'] or "No public description provided.") 
-                            temp_context.append(f"Repository: {repo['name']}\nDescription: {repo['description'] or 'None'}\nLanguage: {repo['language'] or 'Unknown'}") 
- 
-                            try: 
-                                default_branch = repo.get('default_branch', 'main') 
-                                # 🎯 FIX 2: Fixed the domain name and added the missing forward slash for raw README content
-                                readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md" 
-                                readme_req = requests.get(readme_url, headers=headers if pat_token else None) 
-                                if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5: 
-                                    text_slices = chunk_text_data(readme_req.text) 
-                                    st.caption(f"🧠 RAG Engine: Split readme into {len(text_slices)} context vectors.") 
-                                    temp_context.append(f"README Content Slices for {repo['name']}:\n{readme_req.text[:2000]}") 
-                                else: 
-                                    st.caption("⚠️ No standard README.md found in default branch.") 
-                            except Exception: 
-                                st.caption("⚠️ Unable to process project markdown data frames.") 
+                        default_branch = repo.get('default_branch', 'main') 
+                        readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md" 
+                        
+                        processed_repos_list.append({
+                            "name": repo['name'],
+                            "stars": repo['stargazers_count'],
+                            "language": repo['language'] or 'Markdown',
+                            "description": repo['description'] or "No public description provided.",
+                            "tag": assigned_tag,
+                            "readme_url": readme_url
+                        })
+                        
+                        temp_context.append(f"Repository: {repo['name']}\nDescription: {repo['description'] or 'None'}\nLanguage: {repo['language'] or 'Unknown'}") 
  
                     st.session_state.vault_context = "\n\n===\n\n".join(temp_context)
+                    st.session_state.repos_data = processed_repos_list 
                     
                     if fintech_weight >= bpo_weight and fintech_weight > 0: 
                         st.session_state.niche_brand = "capital_vantage"
@@ -140,7 +136,6 @@ def run_dynamic_sync_pipeline(username):
                     else: 
                         st.session_state.niche_brand = "general"
                         
-                    # 🎯 PERSISTENT STATE BRIDGE: Tells app.py to lock the dashboard view open
                     st.session_state.sync_completed = True
                     st.rerun() 
                 else: 
