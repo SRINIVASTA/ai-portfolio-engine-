@@ -4,35 +4,37 @@ import re
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Advanced compiler engine matching the official AI-Portfolio-Hub structure.
-    Permanently repairs the missing forward slash path routing bug by mapping
-    repository targets to 'https://github.com'.
+    Permanently repairs the missing forward slash routing bug across all project nodes.
     """
     featured_html = ""
     tracked_html = ""
     unassigned_html = ""
     valid_idx = 0
     
+    # Strip any potential accidental spacing or formatting residue from username
+    clean_user = str(username).strip().strip('/')
+    
     for repo in ml_sorted_repos:
-        name = repo.get('name', 'Unnamed Asset')
+        name = repo.get('name', 'Unnamed Asset').strip()
         lang = repo.get('language', 'Python')
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # Clean up text descriptions & remove blank repositories
+        # Skip processing loops if the description matrix is empty
         if not desc or "no public description" in str(desc).lower():
             continue
             
         desc_str = str(desc).strip()
 
-        # 🤖 1. DYNAMICALLY EXTRACT LIVE URL EMBEDDED IN GITHUB DESCRIPTION
+        # 🤖 1. DYNAMICALLY EXTRACT LIVE WEBSITE LINK FROM METADATA
         extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
         
         if extracted_url_match:
-            live_streamlit_url = extracted_url_match.group(1).strip()
-            live_streamlit_url = live_streamlit_url.rstrip('.,;)(')
+            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
+            # Isolate repo details cleanly by stripping the URL text out of the card paragraph
             desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
         else:
-            # Fallback static routing if no link is written in description text
+            # Domain path map configuration fallbacks if no explicit url is declared
             if "moder" in name.lower():
                 live_streamlit_url = "https://streamlit.app"
             elif "creditpulse" in name.lower():
@@ -44,14 +46,14 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             else:
                 live_streamlit_url = "https://streamlit.app"
 
-        # 🤖 2. EXTRACT REPO TOPICS / TECHNICAL KEYWORDS DYNAMICALLY
+        # 🤖 2. PARSE REPOSITORY ARCHITECTURE TOPICS
         topics = repo.get('topics', [])
         if not topics:
-            if "moder" in name.lower() or "policy" in name.lower():
+            if "moder" in name.lower():
                 topics = ["compliance", "underwriting", "policy-engine", "mortgage-audit"]
-            elif "creditpulse" in name.lower() or "indian" in name.lower():
+            elif "creditpulse" in name.lower():
                 topics = ["fintech", "nbfc-compliance", "credit-scoring", "risk-optimization"]
-            elif "bhojan" in name.lower() or "nutrition" in name.lower():
+            elif "bhojan" in name.lower():
                 topics = ["computer-vision", "generative-ai", "multi-modal", "nutrition-ai"]
             else:
                 topics = ["streamlit", "python", "data-science", "machine-learning"]
@@ -60,15 +62,13 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
 
         label_text = "Mortgage Policy Engine" if "moder" in name.lower() else "FinTech Risk Engine" if "creditpulse" in name.lower() else "AI Framework System"
         icon_marker = "🏦 ⚖️ 🚀" if "moder" in name.lower() else "🌐 📊 🚀" if "creditpulse" in name.lower() else "⚡ 🤖 🚀"
-
         # --- TRACK 1: FEATURED HIGH-DENSITY PROJECTS LAYER ---
-        # Fixed: Explicit forward slash routing embedded in absolute address structure below
         if valid_idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower() or "moder" in name.lower() or "creditpulse" in name.lower() or "bhojan" in name.lower()):
             featured_html += f"""
                 <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:20px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                         <h3 style="margin:0; color:#fff; font-size:1.25rem;">{icon_marker} {name}: {label_text}</h3>
-                        <a href="https://github.com{username}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-weight:600; font-size:14px;">💻 View Source Code ↗</a>
+                        <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-weight:600; font-size:14px;">💻 View Source Code ↗</a>
                     </div>
                     <div style="margin:8px 0 12px 0;">{topics_html}</div>
                     <p style="color:#8b949e; line-height:1.6; margin:0 0 15px 0; font-size:14.5px;">{desc_str}</p>
@@ -77,8 +77,8 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
             """
             valid_idx += 1
+
         # --- TRACK 2: CORE REPOSITORIES GRID ---
-        # Fixed: Explicit forward slash routing embedded in absolute address structure below
         elif valid_idx < 10:
             track_title = "📊 FinTech Asset" if tag == "capital_vantage" else "🛠️ Business Intelligence" if tag == "transition_control" else "📁 Core Track Component"
             badge_bg = "#341212" if tag == "capital_vantage" else "#123034" if tag == "transition_control" else "#21262d"
@@ -97,17 +97,17 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                     </div>
                     <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                         <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                        <a href="https://github.com{username}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                        <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                     </div>
                 </div>
             """
             valid_idx += 1
+
         # --- TRACK 3: ADDITIONAL ARCHITECTURE UNASSIGNED MATRIX ---
-        # Fixed: Explicit forward slash routing embedded in absolute address structure below
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com{username}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
