@@ -40,19 +40,11 @@ if not st.session_state.logged_in:
  if st.button("Sign In to Portfolio", type="primary"): 
   raw_input = input_username.strip() 
  
-  # 🎯 RE-ENGINEERED BULLETPROOF PROFILE LINK CLEANER FOR RECRUITMENT SAAS PLATFORMS: 
+  # 🎯 RE-ENGINEERED DYNAMIC PROFILE LINK CLEANER FOR MULTI-USER SAAS: 
   cleaned_username = raw_input
-  
-  # Remove protocol prefixes safely if pasted
   cleaned_username = cleaned_username.replace("https://", "").replace("http://", "")
-  
-  # Remove the domain signature safely if pasted
   cleaned_username = cleaned_username.replace("github.com", "")
-  
-  # Remove any leading or trailing slashes left behind by the strip splits
   cleaned_username = cleaned_username.strip("/")
-  
-  # Final sanitation trim
   cleaned_username = cleaned_username.strip()
  
   if cleaned_username: 
@@ -67,14 +59,7 @@ if not st.session_state.logged_in:
 
 # --- PORTFOLIO DASHBOARD --- 
 else: 
- # 🎯 ULTIMATE GUARDRAIL: Clean any legacy corrupted session data instantly
- raw_session_user = str(st.session_state.username).strip()
- if "github.com" in raw_session_user:
-     clean_user = raw_session_user.replace("github.com", "").replace("https://", "").replace("http://", "")
-     clean_user = clean_user.strip("/")
-     st.session_state.username = clean_user
- 
- username = st.session_state.username
+ username = st.session_state.username 
  
  # Dynamic Visual Theming Layer injected directly into the HTML root components
  if st.session_state.niche_brand == "capital_vantage":
@@ -109,6 +94,7 @@ else:
  with left_layout: 
   st.header("📁 Core Tracked Repositories") 
   if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"): 
+   # 🎯 CLEAN RE-ROUTE: Offloads exclusively to backend/ml_processor.py
    run_dynamic_sync_pipeline(username)
   else: 
    st.info("Click the Sync button above to scrape public GitHub API records dynamically.") 
@@ -138,7 +124,6 @@ else:
  
    with chat_container.chat_message("assistant"): 
     with st.spinner("Invoking JavaScript Subprocess Worker Layer..."): 
-     # Hand over processing parameters directly to our chatbot pipeline router
      bot_reply = process_javascript_chat_engine(username, recruiter_prompt, user_api_key)
      st.write(bot_reply) 
      st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
