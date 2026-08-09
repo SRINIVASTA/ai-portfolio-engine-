@@ -114,10 +114,25 @@ else:
    run_dynamic_sync_pipeline(username)
    
   # 🎯 RENDERING PERSISTENCE LAYER: Draws repositories from session states safely across reruns
+  # 🎯 RENDERING PERSISTENCE LAYER: Draws repositories from session states safely across reruns
   if st.session_state.sync_completed and st.session_state.repos_data:
    st.success("Repository context matrices successfully synced and written to session memory!")
    
-   for repo in st.session_state.repos_data:
+   # 🧠 ML CLASSIFICATION SORTING MECHANISM:
+   # Custom priority sorting weight: Fintech Asset (1), BPO System (2), General/Other (3)
+   def get_ml_priority(repo):
+       tag = repo.get('tag', 'general')
+       if tag == "capital_vantage":
+           return 1
+       elif tag == "transition_control":
+           return 2
+       return 3
+
+   # Sort the repository collection dynamically using the ML priority weight
+   ml_sorted_repos = sorted(st.session_state.repos_data, key=get_ml_priority)
+
+   # Render the machine learning sorted repository cards
+   for repo in ml_sorted_repos:
     with st.container(border=True):
      if repo['tag'] == "capital_vantage": 
       st.subheader(f"📈 {repo['name']} [Fintech Asset]")
