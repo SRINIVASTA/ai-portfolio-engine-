@@ -1,37 +1,61 @@
-import express from 'express';
+import fs from 'fs';
+import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
 
-const router = express.Router();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+// Read incoming payload matrix from Streamlit's stdin pipe wrapper
+const inputPayload = fs.readFileSync(0, 'utf-8');
 
-router.post('/query-chatbot', async (req, res) => {
-  const { targetUserId, messageText } = req.body;
-
+async function processChatPipeline() {
   try {
-    // Generate match embedding space tracking array (In production, parse messageText using text-embedding-3-small)
-    const mockQueryEmbedding = Array.from({ length: 1536 }, () => Math.random());
+    const { username, prompt, apiKey, systemInstruction, vaultContext } = JSON.parse(inputPayload);
 
-    // Execute isolation search function bypassing risk of overlapping tenant contexts
-    const { data: matchedContext, error } = await supabase.rpc('match_user_documents', {
-      query_embedding: mockQueryEmbedding,
-      match_threshold: 0.60,
-      match_count: 3,
-      filter_user_id: parseInt(targetUserId)
-    });
+    // Initialize Supabase Contextual Memory
+    const supabaseUrl = process.env.SUPABASE_URL || "";
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+    let contextString = "";
 
-    if (error) throw error;
+    if (supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const mockQueryEmbedding = Array.from({ length: 1536 }, () => Math.random());
+      const targetUserId = parseInt(username) || 0;
 
-    const contextContextString = matchedContext.map(doc => doc.content_chunk).join("\n\n");
+      const { data: matchedContext, error } = await supabase.rpc('match_user_documents', {
+        query_embedding: mockQueryEmbedding,
+        match_threshold: 0.60,
+        match_count: 3,
+        filter_user_id: targetUserId
+      });
+
+      if (!error && matchedContext) {
+        contextString = matchedContext.map(doc => doc.content_chunk).join("\n\n");
+      }
+    }
+
+    // Fall back to Streamlit memory buffer if database vectors are empty
+    const finalContext = contextString || vaultContext || "No custom repository documentation indexed.";
+
+    // 🎯 THE GOOGLE GENAI LIVE PROCESS PIPELINE:
+    // Initializes the official SDK using the key you provided in the UI input box
+    const ai = new GoogleGenAI({ apiKey: apiKey });
     
-    // Send background facts back up to the frontend UI layer
-    return res.status(200).json({ 
-      context: contextContextString,
-      systemPromptHint: `Answer the user prompt truthfully using only the facts here:\n${contextContextString}`
+    // Execute a live chat completion query targeting the fast Gemini Flash model
+    const aiResponse = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [
+        { role: 'user', parts: [{ text: `${systemInstruction}\n\nContextual repository documentation facts:\n${finalContext}\n\nUser Question: ${prompt}` }] }
+      ]
     });
+
+    const assistantOutput = aiResponse.text || "Unable to parse streaming model generation content strings.";
+
+    // Pipe text back up to Streamlit's chatbot_router.py stdout listener
+    process.stdout.write(assistantOutput);
+    process.exit(0);
 
   } catch (err) {
-    return res.status(500).json({ error: "Failed to evaluate semantic database vectors." });
+    process.stderr.write(`Node.js Process Pipeline Fault: ${err.message}`);
+    process.exit(1);
   }
-});
+}
 
-export default router;
+processChatPipeline();
