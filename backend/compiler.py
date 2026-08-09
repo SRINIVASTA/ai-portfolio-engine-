@@ -3,7 +3,7 @@ import os
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Scrapes sync matrices, outputs static site files, and returns a safe,
-    browser-compliant HTML payload block for opening tab links.
+    browser-compliant HTML code block for rendering layout channels.
     """
     featured_html = ""
     tracked_html = ""
@@ -16,10 +16,10 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', 'No public description matrix provided.')
         tag = repo.get('tag', 'general')
         
-        # --- FEATURED TRACKS ---
+        # --- FEATURED STREAMLIT PROJECTS TRACK ---
         if idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower()):
             icon = "📈 💰 🚀" if tag == "capital_vantage" else "📈 📊 🚀" if tag == "transition_control" else "🖼️ ⚡ 🤖"
-            label = "GenAI Financial Intelligence" if tag == "capital_vantage" else "AI-Driven BPO Intelligence" if tag == "transition_control" else "Streamlit Application"
+            label = "GenAI Financial Intelligence" if tag == "capital_vantage" else "AI-Driven BPO Intelligence" if tag == "transition_control" else "Streamlit Application Platform"
             
             featured_html += f"""
                 <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:20px;">
@@ -31,7 +31,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                     <a href="https://streamlit.app" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px;">Launch Live Platform</a>
                 </div>
             """
-        # --- STANDARD CORE TRACKS ---
+        # --- STANDARD CORE TRACKED REPOSITORIES ---
         elif idx < 10:
             track_title = "📊 Fintech Asset" if tag == "capital_vantage" else "🛠️ BPO System" if tag == "transition_control" else "📁 Core Track Component"
             badge_bg = "#341212" if tag == "capital_vantage" else "#123034" if tag == "transition_control" else "#21262d"
@@ -52,7 +52,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                     </div>
                 </div>
             """
-        # --- LONG TAIL UTILITIES ---
+        # --- ADDITIONAL REPOSITORY ARCHITECTURE MATRIX ---
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
@@ -109,5 +109,4 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
     with open("index.html", "w", encoding="utf-8") as file:
         file.write(full_html_output)
         
-    # Return raw text safely to prevent data string blocks from getting cropped
     return full_html_output
