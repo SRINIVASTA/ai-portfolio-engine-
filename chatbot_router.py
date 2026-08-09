@@ -12,12 +12,18 @@ def process_javascript_chat_engine(username, prompt, api_key):
     if not cleaned_key:
         return f"Based on {username}'s public repositories, they possess verified experience working with production data pipelines. (⚠️ Sandbox Mode. Provide an API Key above to unlock true conversational generations)."
 
-    # 🎯 FIX: Force npm install if the folder is missing OR if the newly added Google SDK is missing inside it
+    # 🎯 PERMISSION SHIELD LAYER: Force non-root environments to execute safe local bypass parameters
     google_sdk_path = os.path.join("node_modules", "@google", "genai")
     if not os.path.exists("node_modules") or not os.path.exists(google_sdk_path):
         with st.spinner("Upgrading Node.js core dependencies and provisioning Google GenAI SDK..."):
             try:
-                subprocess.run(["npm", "install"], check=True, capture_output=True, text=True)
+                # Appends sandbox parameters to guarantee installation rights inside cloud container pipelines
+                subprocess.run(
+                    ["npm", "install", "--no-audit", "--no-fund", "--unsafe-perm", "--legacy-peer-deps"], 
+                    check=True, 
+                    capture_output=True, 
+                    text=True
+                )
             except Exception as e:
                 return f"⚠️ Automated npm initialization package deployment failed: {str(e)}"
 
