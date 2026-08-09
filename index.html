@@ -77,7 +77,7 @@
         async function operateForkliftSyncPipeline() {
             // Target user handles extracted directly down into pristine single words
             const targetDeveloperHandle = "SRINIVASTA";
-            const githubEndpointRoute = `https://github.com{targetDeveloperHandle}/repos?per_page=100`;
+            const githubEndpointRoute = `https://github.com{targetDeveloperHandle}/repos?per_page=100&sort=updated`;
 
             const loaderWidget = document.getElementById("warehouse-loading-dock");
             const fintechSection = document.getElementById("fintech-storage-bay");
