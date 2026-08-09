@@ -175,3 +175,26 @@ else:
      bot_reply = process_javascript_chat_engine(username, recruiter_prompt, user_api_key)
      st.write(bot_reply) 
      st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
+
+# --- Place this function at the bottom of your app.py file ---
+def preview_generated_website_surface():
+    """
+    Reads the freshly auto-generated index.html directly from the server disk 
+    and presents it as an immersive canvas preview block at the bottom of the page.
+    """
+    import os
+    import streamlit.components.v1 as components
+
+    if os.path.exists("index.html"):
+        st.write("---")
+        st.header("👀 Live Automated Portfolio Preview (`index.html`)")
+        
+        # Read the file background processes compiled
+        with open("index.html", "r", encoding="utf-8") as f:
+            compiled_raw_html = f.read()
+            
+        # Draw the responsive layout inside an isolated sandbox component block
+        components.html(compiled_raw_html, height=1200, scrolling=True)
+
+# Call the preview function inside your main file rendering loops
+preview_generated_website_surface()
