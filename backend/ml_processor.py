@@ -60,24 +60,27 @@ def load_ml_classifier():
 
 def run_dynamic_sync_pipeline(username):
     """
-    Scrapes public repositories using an absolute fallback string override layout.
+    SaaS multi-user scraper engine. Cleans and processes ANY developer username dynamically.
     """
-    # 🎯 FORCE STRING SANITATION GATES
-    raw_user = str(username).strip().lower()
+    # Isolate the clean handle text from the raw username variable input string dynamically
+    raw_user = str(username).strip()
     
-    if "github.comsrinivasta" in raw_user or raw_user == "github.comsrinivasta":
-        clean_handle = "srinivasta"
-    elif "/" in raw_user:
+    if "/" in raw_user:
         clean_handle = [x for x in raw_user.split("/") if x][-1]
     else:
         clean_handle = raw_user
         
-    clean_handle = clean_handle.replace("github.com", "").strip("/")
+    # Completely remove protocol or domain fragments to prevent "github.comsrinivasta" errors
+    clean_handle = clean_handle.replace("https://", "").replace("http://", "")
+    clean_handle = clean_handle.replace("://github.com", "")
+    clean_handle = clean_handle.replace("github.com", "")
+    clean_handle = clean_handle.strip("/")
 
-    with st.spinner("Accessing GitHub REST endpoints..."): 
+    with st.spinner(f"Accessing GitHub data pipelines for user: {clean_handle}..."): 
         try: 
-            # 🎯 DOUBLE VERIFIED: This must be a clean, un-appended string format hitting ://github.com
-            target_url = f"https://github.com{clean_handle}/repos?per_page=100"
+            # 🎯 MULTI-USER API ENDPOINT: Completely driven by the dynamic handle variable
+            target_url = f"https://://github.com/{clean_handle}/repos?per_page=100" 
+ 
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
             if pat_token: 
@@ -103,10 +106,8 @@ def run_dynamic_sync_pipeline(username):
                         if classifier_pipeline and desc:
                             predicted = classifier_pipeline.predict([text_context])
                             assigned_tag = predicted
-                            if predicted == "capital_vantage": 
-                                fintech_weight += 1
-                            elif predicted == "transition_control": 
-                                bpo_weight += 1
+                            if predicted == "capital_vantage": fintech_weight += 1
+                            elif predicted == "transition_control": bpo_weight += 1
                           
                         with st.container(border=True): 
                             if assigned_tag == "capital_vantage": 
@@ -122,9 +123,8 @@ def run_dynamic_sync_pipeline(username):
  
                             try: 
                                 default_branch = repo.get('default_branch', 'main') 
-                                # 🎯 FIXED PATH: Using your exact original working readme endpoint from Page 5 of code.pdf
-                                readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md"
-
+                                # 🎯 DYNAMIC RAW MD WORKSPACE: Points cleanly to the active developer handle segment
+                                readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md" 
                                 readme_req = requests.get(readme_url, headers=headers if pat_token else None) 
                                 if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5: 
                                     text_slices = chunk_text_data(readme_req.text) 
