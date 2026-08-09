@@ -98,40 +98,45 @@
             const statusBanner = document.getElementById("warehouse-loading-dock");
             const headline = document.getElementById("warehouse-headline");
 
-            // 🎯 FIXED DYNAMIC USERNAME EXTRACTION:
-            // Safely extracts the username string and forces uppercase transformation to comply with case-sensitive API bounds
+            // 🎯 FIXED DYNAMIC USERNAME PARSER:
+            // Safely extracts the username string item from the host array layout
             const host = window.location.hostname;
-            let discoveredUser = "SRINIVASTA"; // Fail-safe production fallback signature
+            let discoveredUser = "SRINIVASTA"; // Fail-safe default local port fallback
 
             if (host.includes(".github.io")) {
                 const parts = host.split('.');
                 if (parts.length > 0 && parts[0] !== "localhost" && parts[0] !== "127") {
-                    discoveredUser = parts[0].toUpperCase(); // Enforces all-caps signature conversion
+                    discoveredUser = parts[0]; // Extends down to standard string piece cleanly
                 }
             }
 
-            headline.innerText = `🚀 ${discoveredUser} ENTERPRISE PRODUCTION PORTFOLIO`;
+            // Sync the warehouse title to represent the discovered developer path
+            headline.innerText = `🚀 ${discoveredUser.toUpperCase()} ENTERPRISE PRODUCTION PORTFOLIO`;
 
             try {
-                // Route the data fetch pipeline dynamically via an optimized proxy connection to preserve client uptime
-                const secureProxyRoute = `https://allorigins.win{encodeURIComponent('https://github.com' + discoveredUser + '/repos?per_page=100&sort=updated')}`;
+                // 🎯 DIRECT ENDPOINT LINK CHANNEL: Pings the unthrottled official GitHub core API framework
+                const secureEndpoint = `https://github.com{discoveredUser}/repos?per_page=100&sort=updated`;
                 
-                const response = await fetch(secureProxyRoute);
-                if (!response.ok) throw new Error("Infrastructure Link Blocked");
+                const response = await fetch(secureEndpoint, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/vnd.github.v3+json' }
+                });
                 
-                const jsonWrapper = await response.json();
-                const repos = JSON.parse(jsonWrapper.contents);
+                if (!response.ok) throw new Error("GitHub Public API Gateway Rate-Limited");
+                
+                const repos = await response.json();
                 
                 if (Array.isArray(repos) && repos.length > 0) {
                     processFiveTierSorting(repos);
                     statusBanner.innerText = `⚙️ LIVE AUTOMATED SYNC OPERATIONAL: ${repos.length} REPOSITORIES MAP-SORTED ACROSS 5 INFRASTRUCTURE SECTORS`;
                     statusBanner.className = "text-center py-4 border border-dashed border-emerald-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-emerald-400 font-bold uppercase tracking-wider";
                 } else {
-                    throw new Error("Empty configurations parsed.");
+                    throw new Error("Empty dashboard configurations parsed.");
                 }
             } catch (error) {
-                statusBanner.innerText = `⚠️ PIPELINE CRITICAL FAULT: ALLORIGINS TUNNEL OUTAGE. GITHUB API ENFORCED BLOCK.`;
-                statusBanner.className = "text-center py-4 border border-dashed border-red-500/30 rounded-xl bg-slate-900/10 mb-6 text-xs text-red-400 font-bold uppercase tracking-wider";
+                // If the unauthenticated API reaches its hourly max ceiling limit, flag the explicit message block
+                statusBanner.innerText = `⚠️ PUBLIC RATES BOUND REACHED. VISIT IN AN INCOGNITO WINDOW OR FROM A FRESH IP NETWORK PATH.`;
+                statusBanner.className = "text-center py-4 border border-dashed border-amber-500/40 rounded-xl bg-slate-900/10 mb-6 text-xs text-amber-500 font-bold uppercase tracking-wider animate-pulse";
             }
         }
 
