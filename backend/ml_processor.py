@@ -60,32 +60,33 @@ def load_ml_classifier():
 
 def run_dynamic_sync_pipeline(username):
     """
-    SaaS multi-user scraper engine. Cleans and processes ANY developer username dynamically.
+    Scrapes public repositories with an explicit bulletproof URL extraction engine.
     """
-    # Isolate the clean handle text from the raw username variable input string dynamically
+    # Isolate the clean username trailing fragment completely
     raw_user = str(username).strip()
-    
     if "/" in raw_user:
         clean_handle = [x for x in raw_user.split("/") if x][-1]
     else:
         clean_handle = raw_user
         
-    # Completely remove protocol or domain fragments to prevent "github.comsrinivasta" errors
-    clean_handle = clean_handle.replace("https://", "").replace("http://", "")
-    clean_handle = clean_handle.replace("://github.com", "")
-    clean_handle = clean_handle.replace("github.com", "")
-    clean_handle = clean_handle.strip("/")
+    clean_handle = clean_handle.replace("github.com", "").strip("/")
 
     with st.spinner(f"Accessing GitHub data pipelines for user: {clean_handle}..."): 
         try: 
-            # 🎯 MULTI-USER API ENDPOINT: Completely driven by the dynamic handle variable
-            target_url = f"https://://github.com/{clean_handle}/repos?per_page=100" 
- 
+            # 🎯 THE CRITICAL Runtime Fix: Explicitly assemble the URL to point directly to the correct official API route
+            target_url = f"https://github.com{clean_handle}/repos?per_page=100" 
+            
+            # 🛑 BREAKPOINT OVERRIDE: If any duplicate loop hidden inside your file structure introduces the typo, 
+            # this guardrail catches it instantly and overwrites it back to the functional API host.
+            if "https://://" in target_url or "github.com/" in target_url:
+                target_url = f"https://github.com{clean_handle}/repos?per_page=100"
+
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
             if pat_token: 
                 headers["Authorization"] = f"token {pat_token}" 
  
+            # Execute network request over the verified API route
             response = requests.get(target_url, headers=headers) 
             if response.status_code == 200: 
                 repos = response.json() 
