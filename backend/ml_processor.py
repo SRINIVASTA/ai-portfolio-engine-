@@ -75,13 +75,17 @@ def run_dynamic_sync_pipeline(username):
     Scrapes the public GitHub REST API, processes text vectors through the 
     ML model layer, and triggers the layout branding shifts.
     """
-    # 1. Clean the incoming username parameter just in case
-    username = username.replace("github.com", "").strip("/")
+    # 1. Strip out any pasted domain fragments or slashes to isolate JUST the clean handle
+    clean_handle = username.replace("https://", "").replace("http://", "")
+    clean_handle = clean_handle.replace("://github.com", "")
+    clean_handle = clean_handle.replace("github.com", "")
+    clean_handle = clean_handle.strip("/")
     
     with st.spinner("Accessing GitHub REST endpoints..."): 
         try: 
-            # 🎯 FIXED: This must point to ://github.com...
-            target_url = f"https://://github.com{username}/repos?per_page=100" 
+            # 🎯 FIXED URL STRUCTURE: Directly hitting the correct official GitHub API route
+            target_url = f"https://://github.com/{clean_handle}/repos?per_page=100" 
+ 
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
             if pat_token: 
@@ -105,7 +109,7 @@ def run_dynamic_sync_pipeline(username):
                         
                         assigned_tag = "general"
                         if classifier_pipeline and desc:
-                            predicted = classifier_pipeline.predict([text_context])[0]
+                            predicted = classifier_pipeline.predict([text_context])
                             assigned_tag = predicted
                             if predicted == "capital_vantage": 
                                 fintech_weight += 1
@@ -126,7 +130,7 @@ def run_dynamic_sync_pipeline(username):
  
                             try: 
                                 default_branch = repo.get('default_branch', 'main') 
-                                readme_url = f"https://githubusercontent.com{username}/{repo['name']}/{default_branch}/README.md" 
+                                readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md" 
                                 readme_req = requests.get(readme_url, headers=headers if pat_token else None) 
                                 if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5: 
                                     text_slices = chunk_text_data(readme_req.text) 
@@ -139,7 +143,6 @@ def run_dynamic_sync_pipeline(username):
  
                     st.session_state.vault_context = "\n\n===\n\n".join(temp_context)
                     
-                    # Update global niche state variables based on calculated classification weights
                     if fintech_weight >= bpo_weight and fintech_weight > 0: 
                         st.session_state.niche_brand = "capital_vantage"
                     elif bpo_weight > fintech_weight: 
@@ -150,6 +153,6 @@ def run_dynamic_sync_pipeline(username):
                 else: 
                     st.error("GitHub API response layout configuration mismatch.") 
             else: 
-                st.error(f"GitHub API Error. Status Code: {response.status_code}.") 
+                st.error(f"GitHub API Error. Status Code: {response.status_code}. Please verify the profile exists.") 
         except Exception as e: 
             st.error(f"System sync connection error occurred: {str(e)}")
