@@ -1,31 +1,15 @@
-import subprocess
-import json
-import os
 import streamlit as st
+from google import genai
+from google.genai import types
 
 def process_javascript_chat_engine(username, prompt, api_key):
     """
-    Safely executes backend/api/chat.js via a Node.js runtime process,
-    handling dependencies and passing layout variables.
+    Executes a direct Python connection to the Google GenAI model,
+    completely replacing the error-prone Node.js subprocess.
     """
     cleaned_key = api_key.strip()
     if not cleaned_key:
         return f"Based on {username}'s public repositories, they possess verified experience working with production data pipelines. (⚠️ Sandbox Mode. Provide an API Key above to unlock true conversational generations)."
-
-    # 🎯 PERMISSION SHIELD LAYER: Force non-root environments to execute safe local bypass parameters
-    google_sdk_path = os.path.join("node_modules", "@google", "genai")
-    if not os.path.exists("node_modules") or not os.path.exists(google_sdk_path):
-        with st.spinner("Upgrading Node.js core dependencies and provisioning Google GenAI SDK..."):
-            try:
-                # Appends sandbox parameters to guarantee installation rights inside cloud container pipelines
-                subprocess.run(
-                    ["npm", "install", "--no-audit", "--no-fund", "--unsafe-perm", "--legacy-peer-deps"], 
-                    check=True, 
-                    capture_output=True, 
-                    text=True
-                )
-            except Exception as e:
-                return f"⚠️ Automated npm initialization package deployment failed: {str(e)}"
 
     # 1. Establish custom system personas matching your ML layout state weights
     if st.session_state.niche_brand == "capital_vantage":
@@ -35,35 +19,26 @@ def process_javascript_chat_engine(username, prompt, api_key):
     else:
         niche_instruction = f"You are the expert AI technical assistant representing developer {username}."
 
-    # 2. Package everything into a structured JSON payload to hand over to chat.js
-    payload_matrix = {
-        "username": username,
-        "prompt": prompt,
-        "apiKey": cleaned_key,
-        "systemInstruction": niche_instruction,
-        "vaultContext": st.session_state.vault_context
-    }
+    # 2. Extract repository context facts saved from the sync process
+    final_context = st.session_state.get("vault_context", "") or "No custom repository documentation indexed."
 
     try:
-        # Secure path navigation matching your exact repo tree structure
-        target_js_script = os.path.join("backend", "api", "chat.js")
+        # 3. Direct Google GenAI Connection Pipeline
+        client = genai.Client(api_key=cleaned_key)
         
-        # 3. Launch Node.js process to execute your chat.js logic
-        process = subprocess.Popen(
-            ["node", target_js_script],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+        # Format the combined instruction prompt structure
+        combined_prompt = f"{niche_instruction}\n\nContextual repository documentation facts:\n{final_context}\n\nUser Question: {prompt}"
+        
+        # Execute an absolute live generation query over the fast gemini-2.5-flash model
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=combined_prompt,
         )
         
-        # Pipe the input payload data securely into standard input stream
-        stdout, stderr = process.communicate(input=json.dumps(payload_matrix))
-        
-        if process.returncode == 0:
-            return stdout.strip()
+        if response.text:
+            return response.text.strip()
         else:
-            return f"⚠️ JavaScript Execution Fault Error: {stderr.strip()}"
+            return "⚠️ Unable to parse streaming model generation content strings."
             
     except Exception as e:
-        return f"⚠️ Failed to spawn Node.js runtime thread connection pipeline: {str(e)}"
+        return f"⚠️ Google GenAI API Connection Pipeline Fault: {str(e)}"
