@@ -2,3 +2,5 @@ streamlit
 supabase
 requests
 google-genai
+scikit-learn
+joblib
