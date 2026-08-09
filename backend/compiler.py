@@ -1,5 +1,4 @@
 import os
-import re
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
@@ -17,35 +16,43 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # 🤖 1. EXTRACT REPO TOPICS / TECHNICAL KEYWORDS DYNAMICALLY
-        # Fallback list of extracted tools if API topics array isn't populated
+        # 🤖 1. CLEAN UP TEXT DESCRIPTIONS & REMOVE BLANK REPOS
+        if not desc or "no public description" in str(desc).lower():
+            continue
+            
+        desc_str = str(desc).strip()
+
+        # 🤖 2. EXTRACT REPO TOPICS / TECHNICAL KEYWORDS DYNAMICALLY
         topics = repo.get('topics', [])
         if not topics:
-            if "stock" in name.lower() or "finance" in desc.lower():
+            if "moder" in name.lower() or "policy" in name.lower():
+                topics = ["compliance", "underwriting", "policy-engine", "mortgage-audit"]
+            elif "creditpulse" in name.lower() or "indian" in name.lower():
+                topics = ["fintech", "nbfc-compliance", "credit-scoring", "risk-optimization"]
+            elif "stock" in name.lower() or "finance" in desc_str.lower():
                 topics = ["yfinance", "technical-analysis", "finance", "data-visualization"]
-            elif "image" in name.lower() or "photo" in name.lower():
-                topics = ["gemini-api", "image-processing", "pillow", "ai-utilities"]
             else:
                 topics = ["streamlit", "python", "automation-engine", "data-science"]
                 
-        # Generate styled HTML tags from topics list
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
-        # 🤖 2. EXTRACT LIVE STREAMLIT WEB APP EMBED LINKS
-        # If the repository is 'creditpulse-indian' or matches other live tracks, map its exact cloud server portal URL
-        if "creditpulse" in name.lower():
+        # 🤖 3. MAP LIVE STREAMLIT WEB APP EMBED LINKS FROM SOURCE
+        if "moder" in name.lower():
             live_streamlit_url = "https://streamlit.app"
-            desc = "An automated portfolio risk optimization and card control engine for Indian NBFCs & Fintechs. Deploys an in-memory, zero-storage processing framework fully compliant with RBI Master Directions and DPDP Act."
-        elif "image-generator" in name.lower():
+            label_text = "Underwriting Decision Engine"
+            icon_marker = "🏦 ⚖️ 🚀"
+        elif "creditpulse" in name.lower():
             live_streamlit_url = "https://streamlit.app"
-        elif "stock-predictor" in name.lower():
-            live_streamlit_url = "https://stock-predictor-streamlit.app"
+            label_text = "Fintech Risk Optimizer"
+            icon_marker = "🌐 📊 🚀"
         else:
             live_streamlit_url = "https://streamlit.app"
+            label_text = "Streamlit Cloud Asset"
+            icon_marker = "📈 💰 🚀"
 
-        # 🤖 3. GENERATE TERMINAL COMMAND ENVIRONMENT STRINGS DYNAMICALLY
+        # 🤖 4. GENERATE CLEAN TERMINAL BASH DEPLOYMENT CODE BLOCKS
         terminal_commands_html = f"""
-        <div style="background:#090d13; border:1px solid #21262d; border-radius:6px; padding:10px; margin-top:12px; font-family:monospace; font-size:11px; color:#79c0ff; overflow-x:auto;">
+        <div style="background:#090d13; border:1px solid #21262d; border-radius:6px; padding:12px; margin-top:14px; font-family:monospace; font-size:11px; color:#79c0ff; overflow-x:auto; line-height:1.5;">
             <span style="color:#8b949e;"># Clone and deploy this workspace asset</span><br>
             <span style="color:#ff7b72;">git clone</span> https://github.com/{username}/{name}.git<br>
             <span style="color:#ff7b72;">cd</span> {name}<br>
@@ -54,25 +61,18 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         </div>
         """
 
-        # Skip rendering logic only if there is absolutely no description content
-        if not desc or "no public description" in str(desc).lower():
-            continue
-
-        # --- TRACK 1: FEATURED HIGH-DENSITY PROJECTS ---
-        if valid_idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower() or "creditpulse" in name.lower()):
-            icon = "🌐 📊 🚀" if "creditpulse" in name.lower() else "📈 💰 🚀" if tag == "capital_vantage" else "📈 📊 🚀"
-            label = "Fintech Risk Optimizer" if "creditpulse" in name.lower() else "GenAI Financial Intelligence" if tag == "capital_vantage" else "AI-Driven BPO Intelligence"
-            
+        # --- TRACK 1: FEATURED HIGH-DENSITY PROJECTS LAYER ---
+        if valid_idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower() or "moder" in name.lower() or "creditpulse" in name.lower()):
             featured_html += f"""
                 <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:20px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                        <h3 style="margin:0; color:#fff; font-size:1.25rem;">{icon} {name}: {label}</h3>
+                        <h3 style="margin:0; color:#fff; font-size:1.25rem;">{icon_marker} {name}: {label_text}</h3>
                         <a href="https://github.com/{username}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-weight:600; font-size:14px;">💻 View Source Code ↗</a>
                     </div>
                     <div style="margin:8px 0 12px 0;">{topics_html}</div>
-                    <p style="color:#8b949e; line-height:1.6; margin:0 0 15px 0; font-size:14.5px;">{desc}</p>
+                    <p style="color:#8b949e; line-height:1.6; margin:0 0 15px 0; font-size:14.5px;">{desc_str}</p>
                     
-                    <a href="{live_streamlit_url}?embed=true" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px; margin-bottom:10px;">🌐 Live Interactive Web App: Launch Live Streamlit Dashboard</a>
+                    <a href="{live_streamlit_url}" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px; margin-bottom:5px;">🌐 Live Interactive Web App: Launch Live Streamlit Dashboard</a>
                     {terminal_commands_html}
                 </div>
             """
@@ -91,8 +91,8 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                             <span style="background:{badge_bg}; color:{badge_color}; border:1px solid rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px; font-size:11px; font-family:monospace; white-space:nowrap;">{lang}</span>
                         </div>
                         <div style="font-size:12px; color:#8b949e; font-family:monospace; margin-bottom:10px;">{track_title}</div>
-                        <p style="color:#8b949e; font-size:13.5px; line-height:1.5; margin:0 0 15px 0;">{desc}</p>
-                        <div style="margin-bottom:10px;">{topics_html}</div>
+                        <p style="color:#8b949e; font-size:13.5px; line-height:1.5; margin:0 0 15px 0;">{desc_str}</p>
+                        <div style="margin-bottom:12px;">{topics_html}</div>
                         {terminal_commands_html}
                     </div>
                     <div style="border-top:1px solid #21262d; padding-top:12px; text-align:right; margin-top:15px;">
@@ -120,7 +120,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
     <style>
         body {{ background-color:#0d1117; color:#c9d1d9; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; margin:0; padding:40px 20px; }}
         .wrapper {{ max-width:1000px; margin:0 auto; }}
-        .grid-layout {{ display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:20px; margin-top:20px; }}
+        .grid-layout {{ display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-top:20px; }}
         .matrix-grid {{ display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-top:20px; }}
     </style>
 </head>
