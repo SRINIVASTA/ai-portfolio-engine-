@@ -4,8 +4,8 @@ import re
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Advanced compiler engine matching the official AI-Portfolio-Hub structure.
-    Injects high-performance interactive preview windows right inside the project
-    cards automatically so the active Streamlit dashboards load immediately.
+    Features a strict URL auto-repair rule that detects truncated or broken 
+    Streamlit links from description texts and rebuilds them into valid links.
     """
     featured_html = ""
     tracked_html = ""
@@ -20,12 +20,15 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
+        # Read the official GitHub homepage link field first
+        live_streamlit_url = repo.get('homepage', '')
+        
         if not desc or "no public description" in str(desc).lower():
             continue
             
         desc_str = str(desc).strip()
 
-        # 🎯 Strict markdown loop clean up to drop trailing setup text structures
+        # Scrub out markdown terminal logs or setup guides if left behind
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "Clone the repository"]:
             if filter_term in desc_str:
                 desc_str = desc_str.split(filter_term)[0].strip()
@@ -37,25 +40,45 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         if len(desc_str) < 5:
             continue
 
-        # 🤖 1. DYNAMICALLY EXTRACT LIVE WEBSITE LINK FROM METADATA
-        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
+        # =========================================================================
+        # 🎯 CRITICAL SYSTEM AUTO-REPAIR RULE: REBUILD TRUNCATED STREAMLIT URLS
+        # =========================================================================
+        # Check both the official homepage field and description text for fragments
+        found_url = ""
+        url_match = re.search(r'([a-zA-Z0-9\-]+(?:\.streamlit\.app|\.str[a-zA-Z0-9\-]*))', live_streamlit_url + " " + desc_str)
         
-        if extracted_url_match:
-            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
-            desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+        if url_match:
+            fragment = url_match.group(1).strip()
+            # Extract just the root application subdomain name
+            app_subdomain = fragment.split('.')[0]
+            found_url = f"https://{app_subdomain}.streamlit.app/"
+            
+            # Clean up the description text by removing the original truncated fragment text
+            desc_str = desc_str.replace(fragment, '').strip()
+        
+        if found_url:
+            live_streamlit_url = found_url
         else:
+            # Absolute fallback routing system for your core flagship systems
             if "moder" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
+                live_streamlit_url = "https://moder-4c-s-dynamic-policy-engine-am7fzqxlcyxmxyqxsfpugp.streamlit.app/"
             elif "creditpulse" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
+                live_streamlit_url = "https://creditpulse-indian.streamlit.app/"
             elif "bhojan" in name.lower() or "smart-bhojan" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
+                live_streamlit_url = "https://smart-bhojan.streamlit.app/"
             elif "vantage" in name.lower() or "capital" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
-            elif "stock-prediction" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
+                live_streamlit_url = "https://capital-vantage.streamlit.app/"
+            elif "stock-prediction" in name.lower() or "ai-stock" in name.lower():
+                live_streamlit_url = "https://ai-stock-prediction-web-app-zophfacmbhf8dttwjeyfnu.streamlit.app/"
             else:
-                live_streamlit_url = "https://streamlit.app"
+                # Default system container URL if no specific app matches
+                live_streamlit_url = f"https://{name}-{clean_user}.streamlit.app/"
+
+        # Ensure layout URL is strictly sanitized
+        live_streamlit_url = str(live_streamlit_url).replace('"', '').replace("'", "").strip()
+        if not live_streamlit_url.endswith('/'):
+            live_streamlit_url += '/'
+        # =========================================================================
 
         # 🤖 2. PARSE REPOSITORY ARCHITECTURE TOPICS
         topics = repo.get('topics', [])
@@ -71,10 +94,10 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
-        label_text = "Mortgage Policy Engine" if "moder" in name.lower() else "FinTech Risk Engine" if "creditpulse" in name.lower() else "AI Price Predictor System" if "stock" in name.lower() else "AI Framework System"
+        label_text = "Mortgage Policy Engine" if "moder" in name.lower() else "FinTech Credit Risk Engine" if "creditpulse" in name.lower() else "AI Price Predictor System" if "stock" in name.lower() else "AI Framework System"
         icon_marker = "🏦 ⚖️ 🚀" if "moder" in name.lower() else "🌐 📊 🚀" if "creditpulse" in name.lower() else "📈 📉 📊" if "stock" in name.lower() else "⚡ 🤖 🚀"
-        # --- TRACK 1: FEATURED HIGH-DENSITY PROJECTS EMBED LOOP ---
-        # Appends an explicit container layout block embedding each app securely
+
+        # --- TRACK 1: FEATURED HIGH-DENSITY PROJECTS LAYER ---
         if valid_idx < 4 and (tag in ["capital_vantage", "transition_control"] or "streamlit" in name.lower() or "moder" in name.lower() or "creditpulse" in name.lower() or "stock" in name.lower()):
             featured_html += f"""
                 <div style="background:#161b22; border:1px solid #30363d; padding:24px; border-radius:12px; margin-bottom:30px;">
@@ -85,16 +108,12 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                     <div style="margin:8px 0 12px 0;">{topics_html}</div>
                     <p style="color:#8b949e; line-height:1.6; margin:0 0 20px 0; font-size:14.5px;">{desc_str}</p>
                     
-                    <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="color:#58a6ff; font-size:12px; font-weight:bold; font-family:monospace;">⚡ Live Embedded Sandbox View Below:</span>
-                        <a href="{live_streamlit_url}" target="_blank" style="background:#238636; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:12px;">Open Fullscreen ↗</a>
-                    </div>
-                    <!-- 🛠️ CRITICAL EMBED POINT: Loads the active Streamlit app seamlessly -->
-                    <iframe src="{live_streamlit_url}?embed=true" style="width:100%; height:500px; border:none; border-radius:8px; background:#ffffff; margin-top:5px;" shadow-inner></iframe>
+                    <a href="{live_streamlit_url}" target="_blank" style="display:inline-block; background:#238636; color:#fff; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:14px; margin-bottom:20px; box-shadow: 0 4px 12px rgba(35,134,54,0.3);">🌐 Live Interactive Web App: Launch Live Streamlit Dashboard</a>
+                    
+                    <iframe src="{live_streamlit_url}?embed=true" style="width:100%; height:550px; border:none; border-radius:8px; background:#ffffff; margin-top:5px;"></iframe>
                 </div>
             """
             valid_idx += 1
-
         # --- TRACK 2: CORE REPOSITORIES GRID ---
         elif valid_idx < 10:
             track_title = "📊 FinTech Asset" if tag == "capital_vantage" else "🛠️ Business Intelligence" if tag == "transition_control" else "📁 Core Track Component"
@@ -114,14 +133,14 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                         <iframe src="{live_streamlit_url}?embed=true" style="width:100%; height:320px; border:none; border-radius:6px; background:#ffffff; margin-top:10px;"></iframe>
                     </div>
                     <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
-                        <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch Full UI ↗</a>
+                        <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
                         <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                     </div>
                 </div>
             """
             valid_idx += 1
 
-        # --- TRACK 3: ADDITIONAL REPOSITORY MATRIX ---
+        # --- TRACK 3: ADDITIONAL ARCHITECTURE UNASSIGNED MATRIX ---
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
