@@ -67,7 +67,14 @@ if not st.session_state.logged_in:
 
 # --- PORTFOLIO DASHBOARD --- 
 else: 
- username = st.session_state.username 
+ # 🎯 ULTIMATE GUARDRAIL: Clean any legacy corrupted session data instantly
+ raw_session_user = str(st.session_state.username).strip()
+ if "github.com" in raw_session_user:
+     clean_user = raw_session_user.replace("github.com", "").replace("https://", "").replace("http://", "")
+     clean_user = clean_user.strip("/")
+     st.session_state.username = clean_user
+ 
+ username = st.session_state.username
  
  # Dynamic Visual Theming Layer injected directly into the HTML root components
  if st.session_state.niche_brand == "capital_vantage":
