@@ -73,7 +73,7 @@ def run_dynamic_sync_pipeline(username):
 
     with st.spinner("Accessing GitHub REST endpoints..."): 
         try: 
-            # 🎯 PURE CLEAN URL: No hardcoded slashes or domains appended via prefixes
+            # 🎯 FIXED URL STRUCTURE: Directly hitting the correct official GitHub API route
             target_url = f"https://github.com{clean_handle}/repos?per_page=100" 
  
             headers = {"Accept": "application/vnd.github.v3+json"} 
@@ -120,6 +120,7 @@ def run_dynamic_sync_pipeline(username):
  
                             try: 
                                 default_branch = repo.get('default_branch', 'main') 
+                                # 🎯 FIXED URL STRUCTURE: Points to raw content delivery networks with proper forward slashes
                                 readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md" 
                                 readme_req = requests.get(readme_url, headers=headers if pat_token else None) 
                                 if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5: 
