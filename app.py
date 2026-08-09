@@ -2,6 +2,7 @@ import streamlit as st
 import requests 
 import sys
 import os
+import json
 
 # --- CRITICAL WORKSPACE MODULE RESOLUTION SYSTEM ---
 root_workspace = os.path.dirname(os.path.abspath(__file__))
@@ -127,16 +128,24 @@ else:
    ml_sorted_repos = sorted(st.session_state.repos_data, key=get_ml_priority)
 
    # =========================================================================
-   # 🤖 THE ZERO-TOUCH DISK AUTOMATION OVERRIDE & WEB PORT LINK HOOK
+   # 🤖 UPGRADED BLOB LINK ENGINE INTEGRATION: BYPASSES WEB SECURITY BLOCKS
    # =========================================================================
    from backend.compiler import auto_generate_portfolio_index
-   web_tab_link = auto_generate_portfolio_index(username, ml_sorted_repos)
+   raw_compiled_html = auto_generate_portfolio_index(username, ml_sorted_repos)
    
-   st.info("🎉 Website generation complete! Click the link below to view your full styled interface:")
+   json_escaped_html = json.dumps(raw_compiled_html)
+   st.info("🎉 Website generation complete! Click the custom button below to open your styled interface:")
    st.markdown(
-       f"""<a href="{web_tab_link}" target="_blank" style="display:inline-block; background-color:#238636; color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:16px; margin-bottom:20px; box-shadow:0 4px 6px rgba(0,0,0,0.2);">
-           🌐 Launch My Portfolio Website (`index.html`) ↗
-       </a>""", 
+       f"""
+       <button onclick='
+           var htmlCode = {json_escaped_html};
+           var blob = new Blob([htmlCode], {{type: "text/html"}});
+           var url = URL.createObjectURL(blob);
+           window.open(url, "_blank");
+       ' style="background-color:#238636; color:white; padding:12px 24px; border-radius:8px; border:none; font-weight:bold; font-size:16px; margin-bottom:20px; cursor:pointer; box-shadow:0 4px 6px rgba(0,0,0,0.2); display:inline-block;">
+           🌐 Open Generated Website (`index.html`) ↗
+       </button>
+       """, 
        unsafe_allow_html=True
    )
    # =========================================================================
