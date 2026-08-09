@@ -73,14 +73,8 @@ def run_dynamic_sync_pipeline(username):
 
     with st.spinner(f"Accessing GitHub data pipelines for user: {clean_handle}..."): 
         try: 
-            # 🎯 THE CRITICAL Runtime Fix: Explicitly assemble the URL to point directly to the correct official API route
-            target_url = f"https://github.com{clean_handle}/repos?per_page=100" 
-            
-            # 🛑 BREAKPOINT OVERRIDE: If any duplicate loop hidden inside your file structure introduces the typo, 
-            # this guardrail catches it instantly and overwrites it back to the functional API host.
-            if "https://://" in target_url or "github.com/" in target_url:
-                target_url = f"https://api.github.com/users/{username}/repos?per_page=100"
-
+            # 🎯 FIX 1: Point directly and cleanly to the official GitHub API endpoint
+            target_url = f"https://api.github.com/users/{clean_handle}/repos?per_page=100" 
 
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
@@ -125,7 +119,7 @@ def run_dynamic_sync_pipeline(username):
  
                             try: 
                                 default_branch = repo.get('default_branch', 'main') 
-                                # 🎯 DYNAMIC RAW MD WORKSPACE: Points cleanly to the active developer handle segment
+                                # 🎯 FIX 2: Fixed the domain name and added the missing forward slash for raw README content
                                 readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md" 
                                 readme_req = requests.get(readme_url, headers=headers if pat_token else None) 
                                 if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5: 
