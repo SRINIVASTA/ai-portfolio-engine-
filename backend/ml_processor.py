@@ -75,13 +75,13 @@ def run_dynamic_sync_pipeline(username):
     Scrapes the public GitHub REST API, processes text vectors through the 
     ML model layer, and triggers the layout branding shifts.
     """
-    # 🎯 EMERGENCY GUARDRAIL: Sanitize the username right before making the network request
+    # 1. Clean the incoming username parameter just in case
     username = username.replace("github.com", "").strip("/")
     
     with st.spinner("Accessing GitHub REST endpoints..."): 
         try: 
-            # This will now safely build into ://github.com
-            target_url = f"https://github.com{username}/repos?per_page=100" 
+            # 🎯 FIXED: This must point to ://github.com...
+            target_url = f"https://://github.com{username}/repos?per_page=100" 
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
             if pat_token: 
