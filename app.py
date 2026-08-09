@@ -37,7 +37,7 @@ if not st.session_state.logged_in:
  st.subheader("Deploy a self-updating website with an interactive recruiter chatbot trained on your code.") 
  st.write("---") 
  
- st.write("### Multi-User Gateway Authentication") 
+ st.write("### Multi-User Gateway Gateway Authentication") 
  input_username = st.text_input("Enter GitHub Username or Profile Link:", placeholder="e.g., srinivasta or https://github.com") 
  
  if st.button("Sign In to Portfolio", type="primary"): 
@@ -88,7 +88,6 @@ else:
    st.title("📈 💰 🚀 CapitalVantage: GenAI Financial Intelligence")
    st.write("`Autonomous Agent for Financial Auditing! 📊`")
   elif st.session_state.niche_brand == "transition_control":
-   # Replace the static string with a dynamic repository name variable
    st.title("🚀 AI Portfolio Engine")
    st.subheader("Automated Developer Portfolio Hub & Isolated RAG Chatbot")
   else:
@@ -114,13 +113,9 @@ else:
   if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"): 
    run_dynamic_sync_pipeline(username)
    
-  # 🎯 RENDERING PERSISTENCE LAYER: Draws repositories from session states safely across reruns
-  # 🎯 RENDERING PERSISTENCE LAYER: Draws repositories from session states safely across reruns
   if st.session_state.sync_completed and st.session_state.repos_data:
    st.success("Repository context matrices successfully synced and written to session memory!")
    
-   # 🧠 ML CLASSIFICATION SORTING MECHANISM:
-   # Custom priority sorting weight: Fintech Asset (1), BPO System (2), General/Other (3)
    def get_ml_priority(repo):
        tag = repo.get('tag', 'general')
        if tag == "capital_vantage":
@@ -129,10 +124,15 @@ else:
            return 2
        return 3
 
-   # Sort the repository collection dynamically using the ML priority weight
    ml_sorted_repos = sorted(st.session_state.repos_data, key=get_ml_priority)
 
-   # Render the machine learning sorted repository cards
+   # =========================================================================
+   # 🤖 THE ZERO-TOUCH DISK AUTOMATION OVERRIDE HOOK
+   # =========================================================================
+   from backend.compiler import auto_generate_portfolio_index
+   auto_generate_portfolio_index(username, ml_sorted_repos)
+   # =========================================================================
+
    for repo in ml_sorted_repos:
     with st.container(border=True):
      if repo['tag'] == "capital_vantage": 
