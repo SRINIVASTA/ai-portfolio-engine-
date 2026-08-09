@@ -7,9 +7,6 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 def chunk_text_data(text, max_chars=800): 
-    """
-    Slices long project documentation or README text frames into manageable chunks.
-    """
     if not text or not isinstance(text, str): 
         return [] 
     words = text.split() 
@@ -25,10 +22,6 @@ def chunk_text_data(text, max_chars=800):
     return chunks 
 
 def self_train_and_bootstrap_model(repos):
-    """
-    Scans repository metadata on initial sync, automatically builds target 
-    supervised labels using text patterns, and trains a scikit-learn model.
-    """
     dataset_descriptions = []
     dataset_labels = []
     
@@ -39,7 +32,6 @@ def self_train_and_bootstrap_model(repos):
         if not desc: 
             continue
         
-        # Supervised labeling assignment via context keyword classification
         assigned_label = "general_portfolio"
         if any(w in combined_text for w in ["invoice", "ledger", "tax", "banking", "finance", "capital", "vantage", "money"]):
             assigned_label = "capital_vantage"
@@ -50,7 +42,6 @@ def self_train_and_bootstrap_model(repos):
             dataset_descriptions.append(f"{repo['name']}. {desc}")
             dataset_labels.append(assigned_label)
             
-    # Compile the training pipeline once both distinct classes are present
     if len(set(dataset_labels)) > 1:
         auto_pipeline = Pipeline([
             ('tfidf', TfidfVectorizer(stop_words='english')),
@@ -63,28 +54,27 @@ def self_train_and_bootstrap_model(repos):
 
 @st.cache_resource
 def load_ml_classifier():
-    """
-    Loads the trained model weights into server cache memory for speed.
-    """
     if os.path.exists("industry_classifier.pkl"):
         return joblib.load("industry_classifier.pkl")
     return None
 
 def run_dynamic_sync_pipeline(username):
     """
-    Scrapes the public GitHub REST API, processes text vectors through the 
-    ML model layer, and triggers the layout branding shifts.
+    Scrapes public repositories with an explicit bulletproof URL extraction engine.
     """
-    # 1. Strip out any pasted domain fragments or slashes to isolate JUST the clean handle
-    clean_handle = username.replace("https://", "").replace("http://", "")
-    clean_handle = clean_handle.replace("://github.com", "")
-    clean_handle = clean_handle.replace("github.com", "")
-    clean_handle = clean_handle.strip("/")
-    
+    # Force isolate the handle by taking the last part of a split string
+    raw_user = str(username).strip()
+    if "/" in raw_user:
+        clean_handle = [x for x in raw_user.split("/") if x][-1]
+    else:
+        clean_handle = raw_user
+        
+    clean_handle = clean_handle.replace("github.com", "").strip()
+
     with st.spinner("Accessing GitHub REST endpoints..."): 
         try: 
-            # 🎯 FIXED URL STRUCTURE: Directly hitting the correct official GitHub API route
-            target_url = f"https://://github.com/{clean_handle}/repos?per_page=100" 
+            # 🎯 PURE CLEAN URL: No hardcoded slashes or domains appended via prefixes
+            target_url = f"https://github.com{clean_handle}/repos?per_page=100" 
  
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
@@ -153,6 +143,6 @@ def run_dynamic_sync_pipeline(username):
                 else: 
                     st.error("GitHub API response layout configuration mismatch.") 
             else: 
-                st.error(f"GitHub API Error. Status Code: {response.status_code}. Please verify the profile exists.") 
+                st.error(f"GitHub API Error. Status Code: {response.status_code}. User profile might not exist.") 
         except Exception as e: 
             st.error(f"System sync connection error occurred: {str(e)}")
