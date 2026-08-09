@@ -88,8 +88,9 @@ else:
    st.title("📈 💰 🚀 CapitalVantage: GenAI Financial Intelligence")
    st.write("`Autonomous Agent for Financial Auditing! 📊`")
   elif st.session_state.niche_brand == "transition_control":
-   st.title("📈 📊 🚀 TransitionControl: AI-Driven BPO Intelligence")
-   st.write("`Autonomous Command Center for Global Business Migrations! 🌐`")
+   # Replace the static string with a dynamic repository name variable
+   st.title("🚀 AI Portfolio Engine")
+   st.subheader("Automated Developer Portfolio Hub & Isolated RAG Chatbot")
   else:
    st.title(f"✨ Developer Portfolio: {username}") 
  with col2: 
