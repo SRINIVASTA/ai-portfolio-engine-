@@ -77,8 +77,7 @@ def run_dynamic_sync_pipeline(username):
     with st.spinner("Accessing GitHub REST endpoints..."): 
         try: 
             # 🎯 DOUBLE VERIFIED: This must be a clean, un-appended string format hitting ://github.com
-            target_url = f"https://://github.com/users/{clean_handle}/repos?per_page=100" 
- 
+            target_url = f"https://github.com{clean_handle}/repos?per_page=100"
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
             if pat_token: 
@@ -124,7 +123,8 @@ def run_dynamic_sync_pipeline(username):
                             try: 
                                 default_branch = repo.get('default_branch', 'main') 
                                 # 🎯 FIXED PATH: Using your exact original working readme endpoint from Page 5 of code.pdf
-                                readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md" 
+                                readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md"
+
                                 readme_req = requests.get(readme_url, headers=headers if pat_token else None) 
                                 if readme_req.status_code == 200 and len(readme_req.text.strip()) > 5: 
                                     text_slices = chunk_text_data(readme_req.text) 
