@@ -4,7 +4,6 @@ import sys
 import os
 
 # --- CRITICAL WORKSPACE MODULE RESOLUTION SYSTEM ---
-# Appends root and backend folders to Python workspace channels
 root_workspace = os.path.dirname(os.path.abspath(__file__))
 if root_workspace not in sys.path:
     sys.path.insert(0, root_workspace)
@@ -59,6 +58,12 @@ if not st.session_state.logged_in:
 
 # --- PORTFOLIO DASHBOARD --- 
 else: 
+ # 🎯 AUTOMATED SANITATION GATES: Cleans legacy cached parameters instantly
+ current_user = str(st.session_state.username).strip()
+ if "github.com" in current_user:
+     current_user = current_user.replace("github.com", "").strip("/")
+ st.session_state.username = current_user
+
  username = st.session_state.username 
  
  # Dynamic Visual Theming Layer injected directly into the HTML root components
@@ -94,7 +99,7 @@ else:
  with left_layout: 
   st.header("📁 Core Tracked Repositories") 
   if st.button("🔄 Sync Live GitHub Repositories Now", type="primary"): 
-   # 🎯 CLEAN RE-ROUTE: Offloads exclusively to backend/ml_processor.py
+   # 🎯 CLEAN ENVIRONMENT ROUTING: No legacy hardcoded loops remain here
    run_dynamic_sync_pipeline(username)
   else: 
    st.info("Click the Sync button above to scrape public GitHub API records dynamically.") 
