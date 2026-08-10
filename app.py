@@ -117,7 +117,7 @@ else:
   elif st.session_state.niche_brand == "transition_control":
    # st.title("🚀 AI Portfolio Engine")
    # st.subheader("Automated Developer Portfolio Hub & Isolated RAG Chatbot")
-  else:
+  # else:
    st.title(f"✨ Developer Portfolio: {username}") 
  with col2: 
   if st.button("Log Out of System", type="secondary", use_container_width=True): 
