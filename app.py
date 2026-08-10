@@ -4,7 +4,29 @@ import sys
 import os
 
 
-# High-visibility centered header copyright
+# Force Streamlit to completely hide the header bar, deployment buttons, and GitHub icons
+st.markdown("""
+    <style>
+    /* 1. Hide the entire top header toolbar (Deploy button, Share button, Options menu) */
+    [data-testid="stHeader"] {
+        display: none !important;
+    }
+    
+    /* 2. Hide the running status element and background anchor link chains */
+    [data-testid="stStatusWidget"] {
+        display: none !important;
+    }
+    
+    /* 3. Hide any GitHub connection buttons or fork badges in the layout viewer */
+    .viewerBadge_container__17w1a {
+        display: none !important;
+    }
+    
+    /* 4. Hide the footer "Made with Streamlit" brand lines at the bottom of the page */
+    footer {
+        visibility: hidden !important;
+    }
+    
 
 # High-visibility centered title and status banner
 st.markdown(
