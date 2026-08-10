@@ -4,9 +4,15 @@ import sys
 import os
 
 
-# Display copyright notice at the top
-st.caption("© 2026 T A Srinivas. All Rights Reserved. For portfolio viewing only.")
-
+# High-visibility centered header copyright
+st.markdown(
+    """
+    <div style="text-align: center; color: #FAFAFA; font-size: 14px; margin-bottom: 20px;">
+        <strong>© 2026 T A Srinivas. All Rights Reserved. For portfolio viewing only.</strong>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # --- CRITICAL WORKSPACE MODULE RESOLUTION SYSTEM ---
 root_workspace = os.path.dirname(os.path.abspath(__file__))
