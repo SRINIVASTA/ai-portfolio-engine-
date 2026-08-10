@@ -9,7 +9,7 @@ def scrape_github_about_website(username, repo_name):
     and searches the HTML source code for any live deployment links.
     """
     try:
-        url = f"https://github.com{username}/{repo_name}"
+        url = f"https://github.com/{username}/{repo_name}"
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
         with urllib.request.urlopen(req, timeout=5) as response:
             html_content = response.read().decode('utf-8')
@@ -42,7 +42,6 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # Ingest the official homepage metadata field parameter safely
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -52,7 +51,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. DYNAMICALLY EXTRACT LIVE WEBSITE LINK (ORDER & PROTOCOLS FIXED)
+        # 🤖 1. DYNAMICALLY EXTRACT LIVE WEBSITE LINK
         # =========================================================================
         live_streamlit_url = None
         
@@ -72,8 +71,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 live_streamlit_url = f"https://{captured_raw_url}"
                 desc_str = desc_str.replace(loose_domain_match.group(1), '').strip()
 
-        # Check 3: 🌟 LIVE SIDEBAR WEB SCRAPER OVERRIDE
-        # If the payload field is empty, scrape the live GitHub page "About Section Website" directly
+        # Check 3: LIVE SIDEBAR WEB SCRAPER OVERRIDE
         if not live_streamlit_url or "github.com" in live_streamlit_url:
             scraped_link = scrape_github_about_website(clean_user, name)
             if scraped_link:
@@ -83,7 +81,8 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 if str(lang).lower() == "python" or "streamlit" in name.lower():
                     live_streamlit_url = f"https://streamlit.io{clean_user.lower()}/{name.lower()}/main/app.py"
                 else:
-                    live_streamlit_url = f"https://github.com{clean_user}/{name}"
+                    # 🌟 FIXED: Added missing forward slash right after github.com
+                    live_streamlit_url = f"https://github.com/{clean_user}/{name}"
 
         # =========================================================================
         # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN TEXT ROWS
@@ -109,7 +108,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
         # Create your targeted visual component card layout with fixed forward slash attributes
-        # 🌟 FIXED: Added the missing forward slash right after github.com/ in the template attributes
+        # 🌟 FIXED: Added the missing forward slash right after github.com/ in the template attributes below
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
@@ -122,7 +121,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
                 <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                     <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                    <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                    <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                 </div>
             </div>
         """
@@ -138,7 +137,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
