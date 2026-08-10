@@ -4,14 +4,6 @@ import sys
 import os
 
 
-# Force Streamlit to completely hide the header bar, deployment buttons, and GitHub icons
-st.markdown("""
-    <style>
-    /* 1. Hide the entire top header toolbar (Deploy button, Share button, Options menu) */
-    [data-testid="stHeader"] {
-        display: none !important;
-    }
-    
 
 # High-visibility centered title and status banner
 st.markdown(
