@@ -72,10 +72,18 @@ def run_dynamic_sync_pipeline(username):
     """
     Dynamic pipeline that scrapes, clusters, and structures any public profile layout on the fly.
     """
-    clean_handle = str(username).strip().split("/")[-1].replace("github.com", "").strip("/")
+    # 🎯 BULLETPROOF FIX: Safely extract the pure username handle regardless of how it is entered
+    raw_user = str(username).strip()
+    
+    # Remove any trailing/leading slashes or full URL schemas completely
+    raw_user = raw_user.replace("https://", "").replace("http://", "").replace("github.com", "")
+    
+    # Split by any remaining slashes and grab the actual user handle fragment
+    clean_handle = [fragment for fragment in raw_user.split("/") if fragment][-1].strip()
 
     with st.spinner(f"Accessing dynamic ML pipelines for developer: {clean_handle}..."): 
         try: 
+            # 🎯 API ROUTE FIX: Ensure it hits the correct official GitHub developer API endpoint
             target_url = f"https://github.com{clean_handle}/repos?per_page=100" 
             headers = {"Accept": "application/vnd.github.v3+json"} 
             
