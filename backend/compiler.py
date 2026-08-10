@@ -3,9 +3,9 @@ import re
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
-    Advanced multi-track portfolio compiler engine.
-    Extracts loose domain targets (including strings missing https:// protocols)
-    to securely isolate custom Streamlit or GitHub destination path urls.
+    Advanced multi-track compiler engine.
+    Extracts loose domain targets dynamically before paragraph scrubbing sequences
+    can break text variables apart, preserving unique deployment hashes.
     """
     image_studio_html = ""
     fintech_track_html = ""
@@ -20,7 +20,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # Capture the formal repository configuration website field if available
+        # Ingest the official GitHub "About Section" Website property from payload
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -30,36 +30,35 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. HARDFACED LIVE STREAMLIT EMBEDDED URL ROUTING MATCHING PIPELINE
+        # 🤖 1. DYNAMICALLY EXTRACT PROTOCOL-AGNOSTIC LIVE APP LINKS (RUNS FIRST)
         # =========================================================================
-        name_lower = name.lower()
+        # Target full URLs containing http/https protocols first
+        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
         
-        if "nanobanana-image-generator" in name_lower:
-            live_streamlit_url = "https://nanobanana-image-generator-lit2ukndfvdqxsycbbfnoq.streamlit.app/"
-        elif "stock-predictor-streamlit" in name_lower:
-            live_streamlit_url = "https://stock-predictor-streamlit-ff8xe6eqoduk7vkcxkhcsf.streamlit.app/"
+        # Target loose domain string paths sitting bare inside text arrays
+        loose_domain_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s#]*)', desc_str)
+        
+        if extracted_url_match:
+            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;) /')
+            desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+        elif loose_domain_match:
+            # Captures bare subdomains missing the protocol prefix dynamically
+            captured_raw_url = loose_domain_match.group(1).strip().rstrip('.,;) /')
+            live_streamlit_url = f"https://{captured_raw_url}"
+            desc_str = desc_str.replace(loose_domain_match.group(1), '').strip()
+        elif homepage_url and homepage_url.startswith("http"):
+            live_streamlit_url = homepage_url
         else:
-            extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
-            loose_domain_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s#]*)', desc_str)
-            
-            if extracted_url_match:
-                live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;) /')
-                desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
-            elif loose_domain_match:
-                captured_raw_url = loose_domain_match.group(1).strip().rstrip('.,;) /')
-                live_streamlit_url = f"https://{captured_raw_url}"
-                desc_str = desc_str.replace(loose_domain_match.group(1), '').strip()
-            elif homepage_url and homepage_url.startswith("http"):
-                live_streamlit_url = homepage_url
+            # Dynamic tenant format fallback if no custom link is declared anywhere
+            if str(lang).lower() == "python" or "streamlit" in name.lower():
+                live_streamlit_url = f"https://{name.lower()}-{clean_user.lower()}.streamlit.app/"
             else:
-                if str(lang).lower() == "python" or "streamlit" in name_lower:
-                    live_streamlit_url = f"https://{name_lower}-{clean_user.lower()}.streamlit.app/"
-                else:
-                    live_streamlit_url = f"https://github.com/{clean_user}/{name}"
+                live_streamlit_url = f"https://github.com{clean_user}/{name}"
 
         # =========================================================================
-        # 🎯 CASE-INSENSITIVE SYSTEM SCRUBBER: REMOVE SETUP COMMAND NOISE
+        # 🎯 CASE-INSENSITIVE SCRUBBER: NOW COMPLETELY SAFE TO CLEAN TEXT ROWS
         # =========================================================================
+        # Now that the true URL is locked safely in memory, we clean up local setup noise
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "clone the repository"]:
             if filter_term in desc_str.lower():
                 match_start = desc_str.lower().find(filter_term)
@@ -93,22 +92,23 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
                 <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                     <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                    <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                    <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                 </div>
             </div>
         """
 
         # Separate items across rows dynamically based on context names
+        name_lower = name.lower()
         if "image" in name_lower or "photo" in name_lower or "bg-changer" in name_lower or "nanobanana" in name_lower:
             image_studio_html += card_html
-        elif "stock" in name_lower or "predict" in name_lower or "trend" in name_lower or "price" in name_lower or "fintech" in name_lower or tag == "capital_vantage":
+        elif "stock" in name_lower or "predict" in name_lower or "trend" in name_lower ("price" in name_lower or "fintech" in name_lower or tag == "capital_vantage"):
             fintech_track_html += card_html
         elif "agent" in name_lower or "bot" in name_lower or "downloader" in name_lower or "summarizer" in name_lower or tag == "transition_control":
             utility_track_html += card_html
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
