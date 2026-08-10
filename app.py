@@ -3,6 +3,11 @@ import requests
 import sys
 import os
 
+
+# Display copyright notice at the top
+st.caption("© 2026 T A Srinivas. All Rights Reserved. For portfolio viewing only.")
+
+
 # --- CRITICAL WORKSPACE MODULE RESOLUTION SYSTEM ---
 root_workspace = os.path.dirname(os.path.abspath(__file__))
 if root_workspace not in sys.path:
