@@ -1,12 +1,11 @@
+https://github.com/SRINIVASTA/ai-portfolio-engine-/blob/main/backend/ml_processor.py
 import os
-import re
-import requests
 import joblib
-import numpy as np
+import requests
 import streamlit as st
-from collections import Counter
+from sklearn.pipeline import Pipeline
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import KMeans
 
 def chunk_text_data(text, max_chars=800): 
     if not text or not isinstance(text, str): 
@@ -23,119 +22,126 @@ def chunk_text_data(text, max_chars=800):
         chunks.append(" ".join(current_chunk)) 
     return chunks 
 
-def dynamically_cluster_repositories(repos, n_clusters=4):
-    """
-    Completely unsupervised system that groups any developer's repositories 
-    using K-Means clustering and generates dynamic section titles automatically.
-    """
-    dataset_texts = []
-    valid_repos = []
+def self_train_and_bootstrap_model(repos):
+    dataset_descriptions = []
+    dataset_labels = []
     
     for repo in repos:
-        name = repo.get("name", "") or ""
-        desc = repo.get("description", "") or "No public description provided."
+        desc = repo.get("description", "") or ""
+        name = repo.get("name", "").lower()
+        combined_text = f"{name}. {desc.lower()}"
+        if not desc: 
+            continue
         
-        # Dynamic Data Correction Layer: Catches S&P vs Nifty anomalies natively
-        if "snp" in name.lower() or "s&p" in name.lower():
-            desc = re.sub(r'(?i)nifty\s*50', 'S&P Top Market Equities', desc)
-            repo["description"] = desc
+        assigned_label = "general_portfolio"
+        if any(w in combined_text for w in ["invoice", "ledger", "tax", "banking", "finance", "capital", "vantage", "money"]):
+            assigned_label = "capital_vantage"
+        elif any(w in combined_text for w in ["migration", "workflow", "governance", "risk", "bpo", "control", "roadmap"]):
+            assigned_label = "transition_control"
             
-        combined_text = f"{name} {desc}".lower()
-        dataset_texts.append(combined_text)
-        valid_repos.append(repo)
-        
-    if len(valid_repos) < n_clusters:
-        n_clusters = max(1, len(valid_repos))
-        
-    # 1. Convert text descriptions into mathematical feature vectors
-    vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 2), max_features=500)
-    tfidf_matrix = vectorizer.fit_transform(dataset_texts)
-    
-    # 2. Run K-Means to find natural concept buckets
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-    cluster_labels = kmeans.fit_predict(tfidf_matrix)
-    
-    # 3. Dynamic Section Header Generation: Extract top keywords per cluster
-    terms = vectorizer.get_feature_names_out()
-    order_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
-    
-    cluster_to_title_map = {}
-    for i in range(n_clusters):
-        # Extract the top 2 highly relevant terms for this cluster
-        top_words = [terms[ind] for ind in order_centroids[i, :2]]
-        title = " & ".join([w.capitalize() for w in top_words]) + " Core Systems"
-        cluster_to_title_map[i] = title
-        
-    return cluster_labels, cluster_to_title_map, valid_repos
+        if assigned_label != "general_portfolio":
+            dataset_descriptions.append(f"{repo['name']}. {desc}")
+            dataset_labels.append(assigned_label)
+            
+    if len(set(dataset_labels)) > 1:
+        auto_pipeline = Pipeline([
+            ('tfidf', TfidfVectorizer(stop_words='english')),
+            ('classifier', MultinomialNB())
+        ])
+        auto_pipeline.fit(dataset_descriptions, dataset_labels)
+        joblib.dump(auto_pipeline, "industry_classifier.pkl")
+        return auto_pipeline
+    return None
+
+@st.cache_resource
+def load_ml_classifier():
+    if os.path.exists("industry_classifier.pkl"):
+        return joblib.load("industry_classifier.pkl")
+    return None
 
 def run_dynamic_sync_pipeline(username):
     """
-    Dynamic pipeline that scrapes, clusters, and structures any public profile layout on the fly.
+    Scrapes public repositories with an explicit bulletproof URL extraction engine.
     """
-    # 1. Clean the incoming string of any accidental domain artifacts
+    # Isolate the clean username trailing fragment completely
     raw_user = str(username).strip()
-    raw_user = raw_user.replace("https://", "").replace("http://", "").replace("github.com", "")
-    
-    # Isolate the pure handle fragment cleanly
-    fragments = [f for f in raw_user.split("/") if f]
-    if not fragments:
-        st.error("Invalid GitHub handle configuration provided.")
-        return
-    clean_handle = fragments[-1].strip()
+    if "/" in raw_user:
+        clean_handle = [x for x in raw_user.split("/") if x][-1]
+    else:
+        clean_handle = raw_user
+        
+    clean_handle = clean_handle.replace("github.com", "").strip("/")
 
-    with st.spinner(f"Accessing dynamic ML pipelines for developer: {clean_handle}..."): 
+    with st.spinner(f"Accessing GitHub data pipelines for user: {clean_handle}..."): 
         try: 
-            # 🎯 CRITICAL FIX 1: Explicitly force the API url to hit the correct REST subdomain
-            target_url = f"https://github.com{clean_handle}/repos?per_page=100" 
-            
+            # 🎯 FIX 1: Point directly and cleanly to the official GitHub API endpoint
+            target_url = f"https://api.github.com/users/{clean_handle}/repos?per_page=100" 
+
             headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
             if pat_token: 
                 headers["Authorization"] = f"token {pat_token}" 
  
+            # Execute network request over the verified API route
+            # Execute network request over the verified API route
             response = requests.get(target_url, headers=headers) 
             if response.status_code == 200: 
-                raw_repos = response.json() 
-                if isinstance(raw_repos, list) and len(raw_repos) > 0: 
-                    
-                    cluster_labels, cluster_titles, repos = dynamically_cluster_repositories(raw_repos)
+                repos = response.json() 
+                if isinstance(repos, list): 
+                    st.success(f"Successfully tracked and parsed {len(repos)} public repositories!") 
                     temp_context = [] 
                     processed_repos_list = []
                     
-                    for idx, repo in enumerate(repos): 
-                        repo_name = repo['name']
-                        desc = repo['description'] or "No public description provided."
-                        cluster_id = int(cluster_labels[idx])
-                        dynamic_tag = cluster_titles[cluster_id]
+                    classifier_pipeline = load_ml_classifier()
+                    if not classifier_pipeline: 
+                        classifier_pipeline = self_train_and_bootstrap_model(repos)
+                     
+                    fintech_weight, bpo_weight = 0, 0
+                    for repo in repos: 
+                        desc = repo.get('description', '') or ''
+                        text_context = f"{repo.get('name', '')}. {desc}"
                         
+                        assigned_tag = "general"
+                        if classifier_pipeline and desc:
+                            predicted = classifier_pipeline.predict([text_context])
+                            # 🎯 CRITICAL STRIP LAYER: Extracts the pure text value from the ML array format
+                            if hasattr(predicted, '__iter__') and not isinstance(predicted, str):
+                                assigned_tag = str(predicted[0])
+                            else:
+                                assigned_tag = str(predicted)
+                                
+                            if assigned_tag == "capital_vantage": fintech_weight += 1
+                            elif assigned_tag == "transition_control": bpo_weight += 1
+                          
                         default_branch = repo.get('default_branch', 'main') 
-                        
-                        # 🎯 CRITICAL FIX 2: Added explicit missing forward slash after the domain asset host
-                        readme_url = f"https://githubusercontent.com{clean_handle}/{repo_name}/{default_branch}/README.md" 
+                        readme_url = f"https://githubusercontent.com{clean_handle}/{repo['name']}/{default_branch}/README.md" 
                         
                         processed_repos_list.append({
-                            "name": repo_name,
-                            "stars": repo.get('stargazers_count', 0),
-                            "language": repo.get('language') or 'Markdown',
-                            "description": desc,
-                            "tag": dynamic_tag,
+                            "name": repo['name'],
+                            "stars": repo['stargazers_count'],
+                            "language": repo['language'] or 'Markdown',
+                            "description": repo['description'] or "No public description provided.",
+                            "tag": assigned_tag,
                             "readme_url": readme_url
                         })
                         
-                        temp_context.append(f"Repository: {repo_name}\nCategory Track: {dynamic_tag}\nDescription: {desc}") 
+                        temp_context.append(f"Repository: {repo['name']}\nDescription: {repo['description'] or 'None'}\nLanguage: {repo['language'] or 'Unknown'}") 
  
                     st.session_state.vault_context = "\n\n===\n\n".join(temp_context)
                     st.session_state.repos_data = processed_repos_list 
                     
-                    all_tags = [r["tag"] for r in processed_repos_list]
-                    st.session_state.niche_brand = Counter(all_tags).most_common(1)[0][0] if all_tags else "general"
+                    if fintech_weight >= bpo_weight and fintech_weight > 0: 
+                        st.session_state.niche_brand = "capital_vantage"
+                    elif bpo_weight > fintech_weight: 
+                        st.session_state.niche_brand = "transition_control"
+                    else: 
+                        st.session_state.niche_brand = "general"
                         
                     st.session_state.sync_completed = True
-                    st.success(f"Successfully processed {len(repos)} repositories into {len(cluster_titles)} dynamic rows!")
                     st.rerun() 
                 else: 
-                    st.error("No valid public repositories found.") 
+                    st.error("GitHub API response layout configuration mismatch.") 
             else: 
-                st.error(f"GitHub API Error. Status Code: {response.status_code}") 
+                st.error(f"GitHub API Error. Status Code: {response.status_code}. User profile might not exist.") 
         except Exception as e: 
             st.error(f"System sync connection error occurred: {str(e)}")
