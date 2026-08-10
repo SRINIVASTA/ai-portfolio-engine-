@@ -20,7 +20,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # 🎯 THE CRITICAL FIX: Extract the actual Website link from the repository's About Section
+        # Extract the actual Website link from the repository's About Section
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -42,8 +42,8 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
                 desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
             else:
-                # Absolute dynamic baseline if no link exists anywhere
-                live_streamlit_url = f"https://github.com{clean_user}/{name}"
+                # 🌟 FIXED: Added missing forward slash after github.com
+                live_streamlit_url = f"https://github.com/{clean_user}/{name}"
 
         # =========================================================================
         # 🎯 CASE-INSENSITIVE SCRUBBER: NOW COMPLETELY SAFE TO CLEAN TEXT
@@ -81,7 +81,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
                 <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                     <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                    <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                    <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                 </div>
             </div>
         """
@@ -97,7 +97,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
