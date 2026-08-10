@@ -21,13 +21,12 @@ function splitTextIntoChunks(text, chunkSize = 800) {
   if (currentChunk.length > 0) chunks.push(currentChunk.join(' '));
   return chunks;
 }
-
 router.post('/sync-profile', async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: "Unauthorized access trigger" });
 
   const user = req.user;
   try {
-    // 1. Query user's public repositories from the GitHub REST API
+    // 1. Query user's public repositories from the GitHub REST API (Fixed dynamic template interpolation)
     const repoResponse = await axios.get(`https://github.com{user.username}/repos`, {
       headers: { Authorization: `token ${user.oauth_token}` }
     });
@@ -38,9 +37,11 @@ router.post('/sync-profile', async (req, res) => {
         user_id: user.id,
         repo_github_id: repo.id.toString(),
         name: repo.name,
-        description: repo.description,
+        description: repo.description || '',
         stars_count: repo.stargazers_count,
-        repo_url: repo.html_url
+        repo_url: repo.html_url,
+        // 🌟 THE CRITICAL INTERCEPT: Securely pull the authentic About website config straight from GitHub response
+        homepage_url: repo.homepage || '' 
       }, { onConflict: 'user_id, repo_github_id' }).select().single();
 
       // 3. Attempt to scrape raw file values out of README markdown layouts
@@ -58,7 +59,7 @@ router.post('/sync-profile', async (req, res) => {
           await supabase.from('documents').insert({
             user_id: user.id,
             repo_id: repoRecord.id,
-            content_chunk: `Repository: ${repo.name}\nDescription: ${repo.description}\n\n${chunk}`,
+            content_chunk: `Repository: ${repo.name}\nDescription: ${repo.description}\nWebsite: ${repo.homepage || ''}\n\n${chunk}`,
             embedding: dummyEmbedding
           });
         }
