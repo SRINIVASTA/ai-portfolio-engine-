@@ -4,8 +4,8 @@ import re
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Advanced multi-track compiler engine.
-    Extracts the direct 'homepage' website property from the repository's About section 
-    to preserve custom Streamlit app random hashes, then splits repos into rows.
+    Extracts explicit website configurations or intelligently auto-constructs 
+    Streamlit app paths dynamically based on repo name and user context matrices.
     """
     image_studio_html = ""
     fintech_track_html = ""
@@ -20,7 +20,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # Extract the actual Website link from the repository's About Section
+        # Capture the official "About Website" URL property if available in payload
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -30,23 +30,28 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. DYNAMICALLY CHOOSE THE CORRECT LIVE WEBSITE LINK
+        # 🤖 1. DYNAMICALLY EXTRACT OR GENERATE STREAMLIT WEB APP LINK
         # =========================================================================
-        # Prioritise the About section website field so we capture the unique random hash
-        if homepage_url and homepage_url.startswith("http"):
+        # Check 1: Try parsing the raw text string before doing anything else
+        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
+        
+        if extracted_url_match:
+            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
+            desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+        # Check 2: Try pulling the formal repository 'homepage' metadata field
+        elif homepage_url and homepage_url.startswith("http"):
             live_streamlit_url = homepage_url
+        # Check 3: 🌟 CORE TRACK FIX - Generate the active Streamlit app domain layout dynamically
         else:
-            # Fallback to searching the text if the homepage field happens to be blank
-            extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
-            if extracted_url_match:
-                live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
-                desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+            if str(lang).lower() == "python" or "streamlit" in name.lower() or "bot" in name.lower() or "agent" in name.lower():
+                # Formats precisely to: https://[repo-name]-[username].streamlit.app/
+                # Lowercases everything to conform cleanly with official web domain name formatting standards
+                live_streamlit_url = f"https://{name.lower()}-{clean_user.lower()}.streamlit.app/"
             else:
-                # 🌟 FIXED: Added missing forward slash after github.com
-                live_streamlit_url = f"https://github.com/{clean_user}/{name}"
+                live_streamlit_url = f"https://github.com{clean_user}/{name}"
 
         # =========================================================================
-        # 🎯 CASE-INSENSITIVE SCRUBBER: NOW COMPLETELY SAFE TO CLEAN TEXT
+        # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN SETUP NOISE FROM CARD TEXT
         # =========================================================================
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "clone the repository"]:
             if filter_term in desc_str.lower():
@@ -81,7 +86,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
                 <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                     <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                    <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                    <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                 </div>
             </div>
         """
@@ -97,7 +102,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
@@ -107,7 +112,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{clean_user} | AI Production Portfolio</title>
+    <title>{clean_user} | AI & FinTech Portfolio</title>
     <style>
         body {{ background-color:#0d1117; color:#c9d1d9; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; margin:0; padding:40px 20px; }}
         .wrapper {{ max-width:1000px; margin:0 auto; }}
