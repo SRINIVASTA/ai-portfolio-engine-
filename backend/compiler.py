@@ -4,8 +4,8 @@ import re
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Advanced multi-track portfolio compiler engine.
-    Uses a highly reliable production mapping rule to connect your key repositories 
-    directly to their live Streamlit cloud instances, bypassing upstream ML filtering gaps.
+    Extracts loose domain targets (including strings missing https:// protocols)
+    to securely isolate custom Streamlit or GitHub destination path urls.
     """
     image_studio_html = ""
     fintech_track_html = ""
@@ -30,17 +30,14 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. PRODUCTION-READY STREAMLIT MAPPING MATRIX (THE ULTIMATE FIX)
+        # 🤖 1. HARDFACED LIVE STREAMLIT EMBEDDED URL ROUTING MATCHING PIPELINE
         # =========================================================================
         name_lower = name.lower()
         
-        # Check 1: Hardcoded absolute match overrides for your core deployment paths
         if "nanobanana-image-generator" in name_lower:
-            live_streamlit_url = "https://streamlit.app"
+            live_streamlit_url = "https://nanobanana-image-generator-lit2ukndfvdqxsycbbfnoq.streamlit.app/"
         elif "stock-predictor-streamlit" in name_lower:
-            live_streamlit_url = "https://streamlit.app"
-        
-        # Check 2: Fallback regular expression parsing if other repositories contain links
+            live_streamlit_url = "https://stock-predictor-streamlit-ff8xe6eqoduk7vkcxkhcsf.streamlit.app/"
         else:
             extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
             loose_domain_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s#]*)', desc_str)
@@ -55,14 +52,13 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             elif homepage_url and homepage_url.startswith("http"):
                 live_streamlit_url = homepage_url
             else:
-                # Dynamic placeholder fallback builder path configuration matching your standard domain schemas
                 if str(lang).lower() == "python" or "streamlit" in name_lower:
                     live_streamlit_url = f"https://{name_lower}-{clean_user.lower()}.streamlit.app/"
                 else:
-                    live_streamlit_url = f"https://github.com{clean_user}/{name}"
+                    live_streamlit_url = f"https://github.com/{clean_user}/{name}"
 
         # =========================================================================
-        # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN SETUP NOISE FROM TEXT ROWS
+        # 🎯 CASE-INSENSITIVE SYSTEM SCRUBBER: REMOVE SETUP COMMAND NOISE
         # =========================================================================
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "clone the repository"]:
             if filter_term in desc_str.lower():
@@ -84,7 +80,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
-        # Create your targeted visual component card layout with accurate forward slashes
+        # Create your targeted visual component card layout with the fixed button link paths
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
@@ -97,12 +93,12 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
                 <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                     <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                    <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                    <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                 </div>
             </div>
         """
 
-        # Separate items across functional matrix rows dynamically based on context names
+        # Separate items across rows dynamically based on context names
         if "image" in name_lower or "photo" in name_lower or "bg-changer" in name_lower or "nanobanana" in name_lower:
             image_studio_html += card_html
         elif "stock" in name_lower or "predict" in name_lower or "trend" in name_lower or "price" in name_lower or "fintech" in name_lower or tag == "capital_vantage":
@@ -112,7 +108,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
