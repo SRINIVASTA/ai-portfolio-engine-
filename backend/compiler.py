@@ -41,14 +41,12 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         # Check 2: Try pulling the formal repository 'homepage' metadata field
         elif homepage_url and homepage_url.startswith("http"):
             live_streamlit_url = homepage_url
-        # Check 3: 🌟 CORE TRACK FIX - Generate the active Streamlit app domain layout dynamically
+        # Check 3: Generate the active Streamlit app domain layout dynamically
         else:
             if str(lang).lower() == "python" or "streamlit" in name.lower() or "bot" in name.lower() or "agent" in name.lower():
-                # Formats precisely to: https://[repo-name]-[username].streamlit.app/
-                # Lowercases everything to conform cleanly with official web domain name formatting standards
                 live_streamlit_url = f"https://{name.lower()}-{clean_user.lower()}.streamlit.app/"
             else:
-                live_streamlit_url = f"https://github.com{clean_user}/{name}"
+                live_streamlit_url = f"https://github.com/{clean_user}/{name}"
 
         # =========================================================================
         # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN SETUP NOISE FROM CARD TEXT
@@ -74,6 +72,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
         # Create your targeted visual component card layout
+        # 🌟 FIXED: Added the missing forward slash right after github.com/ in the view repo link below
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
@@ -86,7 +85,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
                 <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                     <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                    <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                    <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                 </div>
             </div>
         """
@@ -102,7 +101,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
