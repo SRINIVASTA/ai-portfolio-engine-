@@ -115,8 +115,8 @@ else:
    st.title("📈 💰 🚀 CapitalVantage: GenAI Financial Intelligence")
    st.write("`Autonomous Agent for Financial Auditing! 📊`")
   elif st.session_state.niche_brand == "transition_control":
-   st.title("🚀 AI Portfolio Engine")
-   st.subheader("Automated Developer Portfolio Hub & Isolated RAG Chatbot")
+   # st.title("🚀 AI Portfolio Engine")
+   # st.subheader("Automated Developer Portfolio Hub & Isolated RAG Chatbot")
   else:
    st.title(f"✨ Developer Portfolio: {username}") 
  with col2: 
@@ -130,8 +130,8 @@ else:
    st.session_state.repos_data = []
    st.rerun() 
  
- st.write("`✓ Verified Production Architecture Integration Enabled`") 
- st.write("---") 
+ # st.write("`✓ Verified Production Architecture Integration Enabled`") 
+ # st.write("---") 
  
  left_layout, right_chatbot = st.columns(2, gap="large") 
  
