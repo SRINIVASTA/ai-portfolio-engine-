@@ -22,6 +22,10 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
+        # 🌟 CHANGE 1: Capture the official "About Website" URL from GitHub's metadata
+        homepage_url = repo.get('homepage', '')
+        homepage_url = str(homepage_url).strip() if homepage_url else ""
+        
         # Skip processing completely if description field is empty
         if not desc or "no public description" in str(desc).lower():
             continue
@@ -54,6 +58,9 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         if extracted_url_match:
             live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
             desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+        # 🌟 CHANGE 2: Fallback to the explicit About URL if no link was in description text
+        elif homepage_url and homepage_url.startswith("http"):
+            live_streamlit_url = homepage_url
         else:
             # Domain path map configuration fallbacks if no explicit url is declared
             if "moder" in name.lower():
