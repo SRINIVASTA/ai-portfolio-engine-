@@ -3,9 +3,11 @@ import re
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
-    Advanced multi-track portfolio compiler engine.
-    Prioritises the official GitHub 'homepage' metadata field from the About Section
-    to preserve custom Streamlit app random hashes, then splits repos cleanly into rows.
+    Advanced multi-track compiler engine.
+    Splits repositories cleanly into dedicated domain tracks:
+    1. Generative AI & Image Studios
+    2. FinTech Assets
+    3. Operational Utility Components
     """
     image_studio_html = ""
     fintech_track_html = ""
@@ -20,7 +22,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # 🎯 CRITICAL SYSTEM FIX 1: Capture the official "About Section Website" property from GitHub payload
+        # 🌟 STEP 1: Always extract the authentic GitHub settings "homepage" URL parameter first
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -30,25 +32,25 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. DYNAMICALLY CAPTURE LIVE WEBSITE LINK (ORDER CORRECTED)
+        # 🤖 2. DYNAMICALLY EXTRACT LIVE WEBSITE LINK (ROBUST OVERRIDE STEPS)
         # =========================================================================
-        # Priority 1: Check the native GitHub repository 'homepage' (About Section Website)
-        if homepage_url and homepage_url.startswith("http"):
+        # Deep trace regular expression search to parse any text-embedded app link
+        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
+        
+        if extracted_url_match:
+            # Captures your exact custom Streamlit deployment string with your unique random hashes
+            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
+            desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+        elif homepage_url and homepage_url.startswith("http"):
+            # 🌟 STEP 3: Secure fallback to the authentic GitHub configuration homepage settings variable
             live_streamlit_url = homepage_url
         else:
-            # Priority 2: Fallback to searching the description text string using regex
-            extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
-            if extracted_url_match:
-                live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
-                desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
-            else:
-                # Priority 3: Complete baseline backup pathing if no link exists anywhere
-                live_streamlit_url = f"https://github.com/{clean_user}/{name}"
+            # 🌟 STEP 4: Standard tenant fallback redirect layout targeting the precise repo source
+            live_streamlit_url = f"https://github.com/{clean_user}/{name}"
 
         # =========================================================================
-        # 🎯 CASE-INSENSITIVE SCRUBBER: NOW COMPLETELY SAFE TO CLEAN TEXT
+        # 🎯 CASE-INSENSITIVE SCRUBBER: NOW COMPLETELY SAFE TO CLEAN PARAGRAPHS
         # =========================================================================
-        # The true URL is safely locked in memory, text cleanup won't break the links
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "clone the repository"]:
             if filter_term in desc_str.lower():
                 match_start = desc_str.lower().find(filter_term)
@@ -62,7 +64,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             continue
         # =========================================================================
 
-        # 🤖 2. PARSE REPOSITORY TOPICS DYNAMICALLY
+        # 🤖 5. PARSE REPOSITORY TOPICS DYNAMICALLY
         topics = repo.get('topics', [])
         if not topics:
             topics = ["streamlit", "python", "data-science", "machine-learning"]
@@ -87,7 +89,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             </div>
         """
 
-        # Separate items across rows dynamically based on context names
+        # Separate items across functional matrix track rows dynamically
         name_lower = name.lower()
         if "image" in name_lower or "photo" in name_lower or "bg-changer" in name_lower or "nanobanana" in name_lower:
             image_studio_html += card_html
@@ -108,7 +110,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{clean_user} | AI & FinTech Portfolio</title>
+    <title>{clean_user} | AI Production Portfolio</title>
     <style>
         body {{ background-color:#0d1117; color:#c9d1d9; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; margin:0; padding:40px 20px; }}
         .wrapper {{ max-width:1000px; margin:0 auto; }}
