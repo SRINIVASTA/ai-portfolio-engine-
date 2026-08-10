@@ -53,7 +53,8 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             if str(lang).lower() == "python" or "streamlit" in name.lower():
                 live_streamlit_url = f"https://{name.lower()}-{clean_user.lower()}.streamlit.app/"
             else:
-                live_streamlit_url = f"https://github.com{clean_user}/{name}"
+                # 🌟 FIXED: Added missing forward slash after github.com
+                live_streamlit_url = f"https://github.com/{clean_user}/{name}"
 
         # =========================================================================
         # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN TEXT ROWS
@@ -80,6 +81,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
         # Create your targeted visual component card layout with the fixed button link paths
+        # 🌟 FIXED: Verified the forward slash right after github.com/ in the view repo link below
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
@@ -92,7 +94,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
                 <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                     <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                    <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                    <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                 </div>
             </div>
         """
@@ -101,7 +103,6 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         name_lower = name.lower()
         if "image" in name_lower or "photo" in name_lower or "bg-changer" in name_lower or "nanobanana" in name_lower:
             image_studio_html += card_html
-        # 🌟 FIXED: Added missing 'or' operator before checking group expressions
         elif "stock" in name_lower or "predict" in name_lower or "trend" in name_lower or ("price" in name_lower or "fintech" in name_lower or tag == "capital_vantage"):
             fintech_track_html += card_html
         elif "agent" in name_lower or "bot" in name_lower or "downloader" in name_lower or "summarizer" in name_lower or tag == "transition_control":
@@ -109,7 +110,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
