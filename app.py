@@ -99,7 +99,7 @@ if not st.session_state.logged_in:
  st.write("---") 
  
  st.write("### Multi-User Gateway Authentication") 
- input_username = st.text_input("Enter GitHub Username or Profile Link:", placeholder="e.g., srinivasta or https://github.com") 
+ input_username = st.text_input("Enter GitHub Username or Profile Link:", placeholder="e.g., srinivas or https://github.com") 
  
  if st.button("Sign In to Portfolio", type="primary"): 
   raw_input = input_username.strip() 
