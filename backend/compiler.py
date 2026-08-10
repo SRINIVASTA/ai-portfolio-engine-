@@ -3,9 +3,9 @@ import re
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
-    Advanced multi-track compiler engine.
-    Extracts explicit website configurations or intelligently auto-constructs 
-    Streamlit app paths dynamically based on repo name and user context matrices.
+    Advanced multi-track portfolio compiler engine.
+    Prioritises the official GitHub 'homepage' metadata field from the About Section
+    to preserve custom Streamlit app random hashes, then splits repos cleanly into rows.
     """
     image_studio_html = ""
     fintech_track_html = ""
@@ -20,7 +20,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # Capture the official "About Website" URL property if available in payload
+        # 🎯 CRITICAL SYSTEM FIX 1: Capture the official "About Section Website" property from GitHub payload
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -30,27 +30,25 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. DYNAMICALLY EXTRACT OR GENERATE STREAMLIT WEB APP LINK
+        # 🤖 1. DYNAMICALLY CAPTURE LIVE WEBSITE LINK (ORDER CORRECTED)
         # =========================================================================
-        # Check 1: Try parsing the raw text string before doing anything else
-        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
-        
-        if extracted_url_match:
-            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
-            desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
-        # Check 2: Try pulling the formal repository 'homepage' metadata field
-        elif homepage_url and homepage_url.startswith("http"):
+        # Priority 1: Check the native GitHub repository 'homepage' (About Section Website)
+        if homepage_url and homepage_url.startswith("http"):
             live_streamlit_url = homepage_url
-        # Check 3: Generate the active Streamlit app domain layout dynamically
         else:
-            if str(lang).lower() == "python" or "streamlit" in name.lower() or "bot" in name.lower() or "agent" in name.lower():
-                live_streamlit_url = f"https://{name.lower()}-{clean_user.lower()}.streamlit.app/"
+            # Priority 2: Fallback to searching the description text string using regex
+            extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
+            if extracted_url_match:
+                live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
+                desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
             else:
+                # Priority 3: Complete baseline backup pathing if no link exists anywhere
                 live_streamlit_url = f"https://github.com/{clean_user}/{name}"
 
         # =========================================================================
-        # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN SETUP NOISE FROM CARD TEXT
+        # 🎯 CASE-INSENSITIVE SCRUBBER: NOW COMPLETELY SAFE TO CLEAN TEXT
         # =========================================================================
+        # The true URL is safely locked in memory, text cleanup won't break the links
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "clone the repository"]:
             if filter_term in desc_str.lower():
                 match_start = desc_str.lower().find(filter_term)
@@ -72,7 +70,6 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
         # Create your targeted visual component card layout
-        # 🌟 FIXED: Added the missing forward slash right after github.com/ in the view repo link below
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
