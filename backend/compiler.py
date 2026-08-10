@@ -52,27 +52,31 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             continue
         # =========================================================================
 
-        # 🤖 1. DYNAMICALLY EXTRACT LIVE WEBSITE LINK FROM METADATA
+        # =========================================================================
+        # 🤖 1. DYNAMICALLY EXTRACT LIVE WEBSITE LINK FIRST (FIXED PIPELINE ORDER)
+        # =========================================================================
+        # Attempt to grab the 'homepage' fallback parameter first
+        homepage_url = repo.get('homepage', '')
+        homepage_url = str(homepage_url).strip() if homepage_url else ""
+
+        # Run an intense scan across the description string before the scrubber chops it up
         extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
         
         if extracted_url_match:
+            # Safely capture the link embedded in the text string
             live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
+            # Remove the plain-text link from the card description so it doesn't look messy
             desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
-        # 🌟 CHANGE 2: Fallback to the explicit About URL if no link was in description text
         elif homepage_url and homepage_url.startswith("http"):
+            # Use the official GitHub "About Section" metadata website config
             live_streamlit_url = homepage_url
         else:
-            # Domain path map configuration fallbacks if no explicit url is declared
-            if "moder" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
-            elif "creditpulse" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
-            elif "bhojan" in name.lower() or "smart-bhojan" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
-            elif "vantage" in name.lower() or "capital" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
-            elif "stock" in name.lower():
-                live_streamlit_url = "https://streamlit.app"
+            # Fallback path matrix configurations mapping names to custom targets
+            if "moder" in name.lower() or "creditpulse" in name.lower() or "stock" in name.lower():
+                # ✨ CHANGE HERE: Instead of standard streamlit.app, fallback to your live domain setup
+                live_streamlit_url = f"https://{name.lower()}-{clean_user.lower()}.streamlit.app"
+            elif "bhojan" in name.lower() or "vantage" in name.lower():
+                live_streamlit_url = f"https://{name.lower()}-{clean_user.lower()}.streamlit.app"
             else:
                 live_streamlit_url = "https://streamlit.app"
 
