@@ -3,7 +3,7 @@ import re
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
-    Advanced multi-track compiler engine.
+    Advanced multi-track portfolio compiler engine.
     Extracts loose domain targets dynamically before paragraph scrubbing sequences
     can break text variables apart, preserving unique deployment hashes.
     """
@@ -30,7 +30,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. DYNAMICALLY EXTRACT PROTOCOL-AGNOSTIC LIVE APP LINKS (RUNS FIRST)
+        # 🤖 1. DYNAMICALLY EXTRACT PROTOCOL-AGNOSTIC LIVE APP LINKS
         # =========================================================================
         # Target full URLs containing http/https protocols first
         extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
@@ -56,9 +56,9 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 live_streamlit_url = f"https://github.com{clean_user}/{name}"
 
         # =========================================================================
-        # 🎯 CASE-INSENSITIVE SCRUBBER: NOW COMPLETELY SAFE TO CLEAN TEXT ROWS
+        # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN TEXT ROWS
         # =========================================================================
-        # Now that the true URL is locked safely in memory, we clean up local setup noise
+        # The true URL is locked safely in memory, text cleanup won't break the links
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "clone the repository"]:
             if filter_term in desc_str.lower():
                 match_start = desc_str.lower().find(filter_term)
@@ -101,7 +101,8 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         name_lower = name.lower()
         if "image" in name_lower or "photo" in name_lower or "bg-changer" in name_lower or "nanobanana" in name_lower:
             image_studio_html += card_html
-        elif "stock" in name_lower or "predict" in name_lower or "trend" in name_lower ("price" in name_lower or "fintech" in name_lower or tag == "capital_vantage"):
+        # 🌟 FIXED: Added missing 'or' operator before checking group expressions
+        elif "stock" in name_lower or "predict" in name_lower or "trend" in name_lower or ("price" in name_lower or "fintech" in name_lower or tag == "capital_vantage"):
             fintech_track_html += card_html
         elif "agent" in name_lower or "bot" in name_lower or "downloader" in name_lower or "summarizer" in name_lower or tag == "transition_control":
             utility_track_html += card_html
