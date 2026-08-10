@@ -3,11 +3,9 @@ import re
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
-    Advanced multi-track compiler engine.
-    Splits repositories cleanly into dedicated domain tracks:
-    1. Generative AI & Image Studios
-    2. FinTech Assets
-    3. Operational Utility Components
+    Advanced multi-track portfolio compiler engine.
+    Extracts loose domain targets (including strings missing https:// protocols)
+    to securely isolate custom Streamlit application random hashes.
     """
     image_studio_html = ""
     fintech_track_html = ""
@@ -22,7 +20,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # 🌟 STEP 1: Always extract the authentic GitHub settings "homepage" URL parameter first
+        # Capture the formal repository configuration website field if available
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -32,24 +30,30 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 2. DYNAMICALLY EXTRACT LIVE WEBSITE LINK (ROBUST OVERRIDE STEPS)
+        # 🤖 1. DYNAMICALLY EXTRACT PROTOCOL-AGNOSTIC LIVE APP LINKS (THE KEY FIX)
         # =========================================================================
-        # Deep trace regular expression search to parse any text-embedded app link
+        # Look for full URLs containing http/https protocols first
         extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
         
+        # Secondary loose pattern matching domain names sitting bare inside text paragraphs
+        loose_domain_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s#]*)', desc_str)
+        
         if extracted_url_match:
-            # Captures your exact custom Streamlit deployment string with your unique random hashes
-            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;)(')
+            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;) /')
             desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+        elif loose_domain_match:
+            # 🌟 CORE FIX: Capture the link even if it lacks the https:// prefix
+            captured_raw_url = loose_domain_match.group(1).strip().rstrip('.,;) /')
+            live_streamlit_url = f"https://{captured_raw_url}"
+            desc_str = desc_str.replace(loose_domain_match.group(1), '').strip()
         elif homepage_url and homepage_url.startswith("http"):
-            # 🌟 STEP 3: Secure fallback to the authentic GitHub configuration homepage settings variable
             live_streamlit_url = homepage_url
         else:
-            # 🌟 STEP 4: Standard tenant fallback redirect layout targeting the precise repo source
+            # Baseline dynamic fallback if absolutely no live app configuration link exists
             live_streamlit_url = f"https://github.com/{clean_user}/{name}"
 
         # =========================================================================
-        # 🎯 CASE-INSENSITIVE SCRUBBER: NOW COMPLETELY SAFE TO CLEAN PARAGRAPHS
+        # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN SETUP NOISE FROM TEXT ROWS
         # =========================================================================
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "clone the repository"]:
             if filter_term in desc_str.lower():
@@ -64,14 +68,14 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             continue
         # =========================================================================
 
-        # 🤖 5. PARSE REPOSITORY TOPICS DYNAMICALLY
+        # 🤖 2. PARSE REPOSITORY TOPICS DYNAMICALLY
         topics = repo.get('topics', [])
         if not topics:
             topics = ["streamlit", "python", "data-science", "machine-learning"]
                 
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
-        # Create your targeted visual component card layout
+        # Create your targeted visual component card layout with accurate forward slashes
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
@@ -89,7 +93,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             </div>
         """
 
-        # Separate items across functional matrix track rows dynamically
+        # Separate items across functional matrix rows dynamically based on context names
         name_lower = name.lower()
         if "image" in name_lower or "photo" in name_lower or "bg-changer" in name_lower or "nanobanana" in name_lower:
             image_studio_html += card_html
@@ -110,7 +114,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{clean_user} | AI Production Portfolio</title>
+    <title>{clean_user} | AI & FinTech Portfolio</title>
     <style>
         body {{ background-color:#0d1117; color:#c9d1d9; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; margin:0; padding:40px 20px; }}
         .wrapper {{ max-width:1000px; margin:0 auto; }}
