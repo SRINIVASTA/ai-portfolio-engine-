@@ -1,11 +1,34 @@
 import os
 import re
+import urllib.request
+
+def scrape_github_about_website(username, repo_name):
+    """
+    Google AI Style Scraper Core.
+    Downloads the raw HTML of any public GitHub repository page 
+    and searches the HTML source code for any live deployment links.
+    """
+    try:
+        url = f"https://github.com{username}/{repo_name}"
+        # Set a standard User-Agent header so GitHub doesn't block the request
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            html_content = response.read().decode('utf-8')
+            
+            # Search the entire webpage HTML for any streamlit.app domain address
+            html_url_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s"\'<>#]*)', html_content)
+            if html_url_match:
+                found_url = html_url_match.group(1).strip().rstrip('.,;) /')
+                return f"https://{found_url}"
+    except Exception as e:
+        pass
+    return None
 
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Advanced multi-track portfolio compiler engine.
-    Extracts loose domain targets dynamically before paragraph scrubbing sequences
-    can break text variables apart, preserving unique deployment hashes.
+    Uses an active web scraper to pull links straight from the live GitHub page layout
+    if the database or upstream machine learning layers drop the properties.
     """
     image_studio_html = ""
     fintech_track_html = ""
@@ -20,7 +43,6 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
-        # Ingest the official GitHub "About Section" Website property from payload
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -30,36 +52,40 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. DYNAMICALLY EXTRACT PROTOCOL-AGNOSTIC LIVE APP LINKS
+        # 🤖 1. GOOGLE AI STYLE SCRAPER PIPELINE (LIVE WEBPAGE OVERRIDES)
         # =========================================================================
-        # Target full URLs containing http/https protocols first
-        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
+        live_streamlit_url = None
         
-        # Target loose domain string paths sitting bare inside text arrays
+        # Check 1: Try reading from the API description payload string
+        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
         loose_domain_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s#]*)', desc_str)
         
         if extracted_url_match:
             live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;) /')
             desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
         elif loose_domain_match:
-            # Captures bare subdomains missing the protocol prefix dynamically
             captured_raw_url = loose_domain_match.group(1).strip().rstrip('.,;) /')
             live_streamlit_url = f"https://{captured_raw_url}"
             desc_str = desc_str.replace(loose_domain_match.group(1), '').strip()
         elif homepage_url and homepage_url.startswith("http"):
             live_streamlit_url = homepage_url
-        else:
-            # Dynamic tenant format fallback if no custom link is declared anywhere
-            if str(lang).lower() == "python" or "streamlit" in name.lower():
-                live_streamlit_url = f"https://{name.lower()}-{clean_user.lower()}.streamlit.app/"
+            
+        # Check 2: 🌟 THE LIVE WEB SCRAPER OVERRIDE
+        # If the properties above came back blank, scrape the live GitHub page directly!
+        if not live_streamlit_url or "github.com" in live_streamlit_url:
+            scraped_link = scrape_github_about_website(clean_user, name)
+            if scraped_link:
+                live_streamlit_url = scraped_link
             else:
-                # 🌟 FIXED: Added missing forward slash after github.com
-                live_streamlit_url = f"https://github.com/{clean_user}/{name}"
+                # Dynamic fallback if absolutely no deployment configuration exists anywhere
+                if str(lang).lower() == "python" or "streamlit" in name.lower():
+                    live_streamlit_url = f"https://streamlit.io{clean_user.lower()}/{name.lower()}/main/app.py"
+                else:
+                    live_streamlit_url = f"https://github.com{clean_user}/{name}"
 
         # =========================================================================
         # 🎯 CASE-INSENSITIVE SCRUBBER: SAFELY CLEAN TEXT ROWS
         # =========================================================================
-        # The true URL is locked safely in memory, text cleanup won't break the links
         for filter_term in ["git clone", "cd ", "pip install", "streamlit run", "clone the repository"]:
             if filter_term in desc_str.lower():
                 match_start = desc_str.lower().find(filter_term)
@@ -81,7 +107,6 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
         # Create your targeted visual component card layout with the fixed button link paths
-        # 🌟 FIXED: Verified the forward slash right after github.com/ in the view repo link below
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
@@ -94,7 +119,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </div>
                 <div style="border-top:1px solid #21262d; padding-top:12px; display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
                     <a href="{live_streamlit_url}" target="_blank" style="color:#34d399; text-decoration:none; font-size:13px; font-weight:bold;">Launch UI ↗</a>
-                    <a href="https://github.com/{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
+                    <a href="https://github.com{clean_user}/{name}" target="_blank" style="color:#58a6ff; text-decoration:none; font-size:13px; font-weight:bold;">View Repo ↗</a>
                 </div>
             </div>
         """
@@ -110,7 +135,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         else:
             lang_color = "#34d399" if lang == "Python" else "#fbbf24" if lang == "HTML" else "#60a5fa"
             unassigned_html += f"""
-                <a href="https://github.com/{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
+                <a href="https://github.com{clean_user}/{name}" target="_blank" style="background:rgba(33,38,45,0.4); border:1px solid #30363d; padding:14px; border-radius:10px; text-decoration:none; display:block;">
                     <div style="color:#fff; font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{name}</div>
                     <div style="color:{lang_color}; font-size:10px; margin-top:4px; font-family:monospace;">📝 {lang} Matrix Node</div>
                 </a>
