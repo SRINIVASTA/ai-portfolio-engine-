@@ -5,3 +5,4 @@ google-genai
 scikit-learn
 joblib
 beautifulsoup4
+axios
