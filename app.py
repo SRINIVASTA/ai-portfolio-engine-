@@ -195,3 +195,26 @@ else:
      bot_reply = process_javascript_chat_engine(username, recruiter_prompt, user_api_key)
      st.write(bot_reply) 
      st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
+
+# Create a fixed footer using HTML/CSS
+st.markdown(
+    """
+    <style>
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: transparent;
+        color: grey;
+        text-align: center;
+        font-size: 12px;
+        padding: 10px 0;
+    }
+    </style>
+    <div class="footer">
+        <p>© 2026 T A Srinivas. All Rights Reserved. Strictly for portfolio viewing purposes.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
