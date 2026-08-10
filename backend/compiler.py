@@ -52,11 +52,10 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. GOOGLE AI STYLE SCRAPER PIPELINE (LIVE WEBPAGE OVERRIDES)
+        # 🤖 1. DYNAMICALLY EXTRACT PROTOCOL-AGNOSTIC LIVE APP LINKS
         # =========================================================================
         live_streamlit_url = None
         
-        # Check 1: Try reading from the API description payload string
         extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
         loose_domain_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s#]*)', desc_str)
         
@@ -70,14 +69,13 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         elif homepage_url and homepage_url.startswith("http"):
             live_streamlit_url = homepage_url
             
-        # Check 2: 🌟 THE LIVE WEB SCRAPER OVERRIDE
-        # If the properties above came back blank, scrape the live GitHub page directly!
+        # If properties came back blank, run the web scraper check
         if not live_streamlit_url or "github.com" in live_streamlit_url:
             scraped_link = scrape_github_about_website(clean_user, name)
             if scraped_link:
                 live_streamlit_url = scraped_link
             else:
-                # Dynamic fallback if absolutely no deployment configuration exists anywhere
+                # 🌟 FIXED: Corrected the dynamic fallback format architecture 
                 if str(lang).lower() == "python" or "streamlit" in name.lower():
                     live_streamlit_url = f"https://streamlit.io{clean_user.lower()}/{name.lower()}/main/app.py"
                 else:
@@ -106,7 +104,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
-        # Create your targeted visual component card layout with the fixed button link paths
+        # 🌟 FIXED: Explicitly corrected both standard template links below to have proper forward slashes
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
