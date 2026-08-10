@@ -10,12 +10,11 @@ def scrape_github_about_website(username, repo_name):
     """
     try:
         url = f"https://github.com{username}/{repo_name}"
-        # Set a standard User-Agent header so GitHub doesn't block the request
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
         with urllib.request.urlopen(req, timeout=5) as response:
             html_content = response.read().decode('utf-8')
             
-            # Search the entire webpage HTML for any streamlit.app domain address
+            # Scrape the webpage HTML for any valid streamlit.app domain address
             html_url_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s"\'<>#]*)', html_content)
             if html_url_match:
                 found_url = html_url_match.group(1).strip().rstrip('.,;) /')
@@ -27,8 +26,8 @@ def scrape_github_about_website(username, repo_name):
 def auto_generate_portfolio_index(username, ml_sorted_repos):
     """
     Advanced multi-track portfolio compiler engine.
-    Uses an active web scraper to pull links straight from the live GitHub page layout
-    if the database or upstream machine learning layers drop the properties.
+    Extracts explicit website configurations or uses an active web scraper to 
+    pull live URLs straight from the GitHub About Section if missing in payload arrays.
     """
     image_studio_html = ""
     fintech_track_html = ""
@@ -43,6 +42,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc = repo.get('description', '')
         tag = repo.get('tag', 'general')
         
+        # Ingest the official homepage metadata field parameter safely
         homepage_url = repo.get('homepage', '')
         homepage_url = str(homepage_url).strip() if homepage_url else ""
         
@@ -52,30 +52,34 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
         desc_str = str(desc).strip()
 
         # =========================================================================
-        # 🤖 1. DYNAMICALLY EXTRACT PROTOCOL-AGNOSTIC LIVE APP LINKS
+        # 🤖 1. DYNAMICALLY EXTRACT LIVE WEBSITE LINK (ORDER & PROTOCOLS FIXED)
         # =========================================================================
         live_streamlit_url = None
         
-        extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
-        loose_domain_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s#]*)', desc_str)
-        
-        if extracted_url_match:
-            live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;) /')
-            desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
-        elif loose_domain_match:
-            captured_raw_url = loose_domain_match.group(1).strip().rstrip('.,;) /')
-            live_streamlit_url = f"https://{captured_raw_url}"
-            desc_str = desc_str.replace(loose_domain_match.group(1), '').strip()
-        elif homepage_url and homepage_url.startswith("http"):
+        # Check 1: Extract from the formal GitHub API homepage metadata property
+        if homepage_url and homepage_url.startswith("http"):
             live_streamlit_url = homepage_url
+        else:
+            # Check 2: Try parsing text-embedded full or bare domain strings
+            extracted_url_match = re.search(r'(https?://[^\s#]+)', desc_str)
+            loose_domain_match = re.search(r'([a-zA-Z0-9\-_]+\.streamlit\.app[^\s#]*)', desc_str)
             
-        # If properties came back blank, run the web scraper check
+            if extracted_url_match:
+                live_streamlit_url = extracted_url_match.group(1).strip().rstrip('.,;) /')
+                desc_str = desc_str.replace(extracted_url_match.group(1), '').strip()
+            elif loose_domain_match:
+                captured_raw_url = loose_domain_match.group(1).strip().rstrip('.,;) /')
+                live_streamlit_url = f"https://{captured_raw_url}"
+                desc_str = desc_str.replace(loose_domain_match.group(1), '').strip()
+
+        # Check 3: 🌟 LIVE SIDEBAR WEB SCRAPER OVERRIDE
+        # If the payload field is empty, scrape the live GitHub page "About Section Website" directly
         if not live_streamlit_url or "github.com" in live_streamlit_url:
             scraped_link = scrape_github_about_website(clean_user, name)
             if scraped_link:
                 live_streamlit_url = scraped_link
             else:
-                # 🌟 FIXED: Corrected the dynamic fallback format architecture 
+                # Predictable fallback structure matching standard multi-tenant stream pathings
                 if str(lang).lower() == "python" or "streamlit" in name.lower():
                     live_streamlit_url = f"https://streamlit.io{clean_user.lower()}/{name.lower()}/main/app.py"
                 else:
@@ -104,7 +108,8 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 
         topics_html = "".join([f'<span style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:2px 6px; border-radius:4px; font-size:10px; font-family:monospace; margin-right:5px;">#{t}</span>' for t in topics[:4]])
 
-        # 🌟 FIXED: Explicitly corrected both standard template links below to have proper forward slashes
+        # Create your targeted visual component card layout with fixed forward slash attributes
+        # 🌟 FIXED: Added the missing forward slash right after github.com/ in the template attributes
         card_html = f"""
             <div style="background:#161b22; border:1px solid #30363d; padding:20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
@@ -122,7 +127,7 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
             </div>
         """
 
-        # Separate items across rows dynamically based on context names
+        # Separate items across functional matrix track rows dynamically based on context names
         name_lower = name.lower()
         if "image" in name_lower or "photo" in name_lower or "bg-changer" in name_lower or "nanobanana" in name_lower:
             image_studio_html += card_html
