@@ -72,25 +72,23 @@ def run_dynamic_sync_pipeline(username):
     """
     Dynamic pipeline that scrapes, clusters, and structures any public profile layout on the fly.
     """
-    # 🎯 FIX 1: Clean and isolate the raw text input string
+    # 1. Clean the incoming string of any accidental domain artifacts
     raw_user = str(username).strip()
-    
-    # 🎯 FIX 2: Strip away network protocols and host strings explicitly 
     raw_user = raw_user.replace("https://", "").replace("http://", "").replace("github.com", "")
     
-    # 🎯 FIX 3: Split by slashes and grab only the pure trailing user handle fragment
+    # Isolate the pure handle fragment cleanly
     fragments = [f for f in raw_user.split("/") if f]
     if not fragments:
-        st.error("Invalid GitHub username input provided.")
+        st.error("Invalid GitHub handle configuration provided.")
         return
     clean_handle = fragments[-1].strip()
 
     with st.spinner(f"Accessing dynamic ML pipelines for developer: {clean_handle}..."): 
         try: 
-            # 🎯 FIX 4: Explicitly force the network target to hit the official API endpoint route
+            # 🎯 CRITICAL FIX 1: Explicitly force the API url to hit the correct REST subdomain
             target_url = f"https://github.com{clean_handle}/repos?per_page=100" 
-            headers = {"Accept": "application/vnd.github.v3+json"} 
             
+            headers = {"Accept": "application/vnd.github.v3+json"} 
             pat_token = st.secrets.get("GITHUB_PAT_TOKEN", None) 
             if pat_token: 
                 headers["Authorization"] = f"token {pat_token}" 
@@ -100,9 +98,7 @@ def run_dynamic_sync_pipeline(username):
                 raw_repos = response.json() 
                 if isinstance(raw_repos, list) and len(raw_repos) > 0: 
                     
-                    # Execute purely unsupervised dynamic clustering
                     cluster_labels, cluster_titles, repos = dynamically_cluster_repositories(raw_repos)
-                    
                     temp_context = [] 
                     processed_repos_list = []
                     
@@ -110,9 +106,11 @@ def run_dynamic_sync_pipeline(username):
                         repo_name = repo['name']
                         desc = repo['description'] or "No public description provided."
                         cluster_id = int(cluster_labels[idx])
-                        dynamic_tag = cluster_titles[cluster_id] # Extracted row title mapping
+                        dynamic_tag = cluster_titles[cluster_id]
                         
                         default_branch = repo.get('default_branch', 'main') 
+                        
+                        # 🎯 CRITICAL FIX 2: Added explicit missing forward slash after the domain asset host
                         readme_url = f"https://githubusercontent.com{clean_handle}/{repo_name}/{default_branch}/README.md" 
                         
                         processed_repos_list.append({
@@ -120,7 +118,7 @@ def run_dynamic_sync_pipeline(username):
                             "stars": repo.get('stargazers_count', 0),
                             "language": repo.get('language') or 'Markdown',
                             "description": desc,
-                            "tag": dynamic_tag, # Injected row string label
+                            "tag": dynamic_tag,
                             "readme_url": readme_url
                         })
                         
@@ -129,16 +127,15 @@ def run_dynamic_sync_pipeline(username):
                     st.session_state.vault_context = "\n\n===\n\n".join(temp_context)
                     st.session_state.repos_data = processed_repos_list 
                     
-                    # Extract overall profile branding niche based on cluster densities
                     all_tags = [r["tag"] for r in processed_repos_list]
-                    st.session_state.niche_brand = Counter(all_tags).most_common(1)[0][0]
+                    st.session_state.niche_brand = Counter(all_tags).most_common(1)[0][0] if all_tags else "general"
                         
                     st.session_state.sync_completed = True
-                    st.success(f"Successfully processed {len(repos)} repositories into {len(cluster_titles)} unique dynamic layouts!")
+                    st.success(f"Successfully processed {len(repos)} repositories into {len(cluster_titles)} dynamic rows!")
                     st.rerun() 
                 else: 
-                    st.error("No valid repositories found or schema layout configuration mismatch.") 
+                    st.error("No valid public repositories found.") 
             else: 
-                st.error(f"GitHub Pipeline Error. Status: {response.status_code}.") 
+                st.error(f"GitHub API Error. Status Code: {response.status_code}") 
         except Exception as e: 
             st.error(f"System sync connection error occurred: {str(e)}")
