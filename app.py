@@ -14,6 +14,22 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# High-visibility centered title and status banner
+st.markdown(
+    """
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #FAFAFA; margin-bottom: 5px;">🚀 AI Portfolio Engine</h1>
+        <p style="color: #FF4B4B; font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 15px;">
+            Automated Developer Portfolio Hub & Isolated RAG Chatbot
+        </p>
+        <div style="display: inline-block; background-color: #262730; padding: 8px 16px; border-radius: 5px; border: 1px solid #FF4B4B;">
+            <span style="color: #FAFAFA; font-weight: 500;">✓ Verified Production Architecture Integration Enabled</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # --- CRITICAL WORKSPACE MODULE RESOLUTION SYSTEM ---
 root_workspace = os.path.dirname(os.path.abspath(__file__))
 if root_workspace not in sys.path:
