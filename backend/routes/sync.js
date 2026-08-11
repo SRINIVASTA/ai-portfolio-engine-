@@ -27,8 +27,8 @@ router.post('/sync-profile', async (req, res) => {
 
   const user = req.user;
   try {
-    // 1. FIXED SYNTAX & DOMAIN: Standard API pathing for dynamic profile lookup
-    const repoResponse = await axios.get(`https://github.com{user.username}/repos?per_page=100`, {
+    // 1. Query user's public repositories from the GitHub REST API
+    const repoResponse = await axios.get(`https://github.com{user.username}/repos`, {
       headers: { Authorization: `token ${user.oauth_token}` }
     });
 
@@ -38,15 +38,13 @@ router.post('/sync-profile', async (req, res) => {
         user_id: user.id,
         repo_github_id: repo.id.toString(),
         name: repo.name,
-        description: repo.description || '',
+        description: repo.description,
         stars_count: repo.stargazers_count,
-        repo_url: repo.html_url,
-        homepage_url: repo.homepage || '' 
+        repo_url: repo.html_url
       }, { onConflict: 'user_id, repo_github_id' }).select().single();
 
       // 3. Attempt to scrape raw file values out of README markdown layouts
       try {
-        // FIXED SYNTAX & DOMAIN: Swapped to raw content delivery subdomain with correct string interpolation
         const readmeResponse = await axios.get(`https://githubusercontent.com{user.username}/${repo.name}/${repo.default_branch}/README.md`);
         const textChunks = splitTextIntoChunks(readmeResponse.data);
 
@@ -60,7 +58,7 @@ router.post('/sync-profile', async (req, res) => {
           await supabase.from('documents').insert({
             user_id: user.id,
             repo_id: repoRecord.id,
-            content_chunk: `Repository: ${repo.name}\nDescription: ${repo.description}\nWebsite: ${repo.homepage || ''}\n\n${chunk}`,
+            content_chunk: `Repository: ${repo.name}\nDescription: ${repo.description}\n\n${chunk}`,
             embedding: dummyEmbedding
           });
         }
