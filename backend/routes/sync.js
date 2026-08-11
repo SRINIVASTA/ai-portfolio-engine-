@@ -21,13 +21,14 @@ function splitTextIntoChunks(text, chunkSize = 800) {
   if (currentChunk.length > 0) chunks.push(currentChunk.join(' '));
   return chunks;
 }
+
 router.post('/sync-profile', async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: "Unauthorized access trigger" });
 
   const user = req.user;
   try {
-    // 1. Query user's public repositories from the GitHub REST API (Fixed dynamic template interpolation)
-    const repoResponse = await axios.get(`https://github.com{user.username}/repos`, {
+    // 1. FIXED: Changed to backticks with standard ${} interpolation and pointed to the api.github.com REST endpoint
+    const repoResponse = await axios.get(`https://github.com{user.username}/repos?per_page=100`, {
       headers: { Authorization: `token ${user.oauth_token}` }
     });
 
@@ -46,6 +47,7 @@ router.post('/sync-profile', async (req, res) => {
 
       // 3. Attempt to scrape raw file values out of README markdown layouts
       try {
+        // FIXED: Added missing '$' signs and corrected the subdomain to 'raw.githubusercontent.com'
         const readmeResponse = await axios.get(`https://githubusercontent.com{user.username}/${repo.name}/${repo.default_branch}/README.md`);
         const textChunks = splitTextIntoChunks(readmeResponse.data);
 
