@@ -138,7 +138,13 @@ def auto_generate_portfolio_index(username, ml_sorted_repos):
                 </a>
             """
             
-    # 🌐 4. Output the Complete Webpage
+    # 🌟 FIXED SECTION: Deterministic Row Evaluation Pre-Processing
+    row_1_section = f'<section><h2 class="section-title">🖼️ Generative AI & Image Studios</h2><div class="row-grid">{image_studio_html}</div></section>' if image_studio_html else ""
+    row_2_section = f'<section><h2 class="section-title">📈 FinTech Market Analytics & Price Engines</h2><div class="row-grid">{fintech_track_html}</div></section>' if fintech_track_html else ""
+    row_3_section = f'<section><h2 class="section-title">⚙️ Operational Utility Systems & Automation</h2><div class="row-grid">{utility_track_html}</div></section>' if utility_track_html else ""
+    row_4_section = f'<section style="margin-bottom:40px;"><h2 class="section-title" style="font-size:1.2rem;">📁 Additional Repository Matrix Nodes</h2><div class="matrix-grid">{unassigned_html}</div></section>' if unassigned_html else ""
+
+    # 🌐 4. Output the Complete Webpage (Double-curly braces preserve static style layers smoothly)
     full_html_output = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -164,10 +170,10 @@ body {{ background-color:#0d1117; color:#c9d1d9; font-family:-apple-system, Blin
 Verified Matrix Core Layer Active
 </div>
 </header>
-{{f'<section><h2 class="section-title">🖼️ Generative AI & Image Studios</h2><div class="row-grid">{{image_studio_html}}</div></section>' if image_studio_html else ""}}
-{{f'<section><h2 class="section-title">📈 FinTech Market Analytics & Price Engines</h2><div class="row-grid">{{fintech_track_html}}</div></section>' if fintech_track_html else ""}}
-{{f'<section><h2 class="section-title">⚙️ Operational Utility Systems & Automation</h2><div class="row-grid">{{utility_track_html}}</div></section>' if utility_track_html else ""}}
-{{f'<section style="margin-bottom:40px;"><h2 class="section-title" style="font-size:1.2rem;">📁 Additional Repository Matrix Nodes</h2><div class="matrix-grid">{{unassigned_html}}</div></section>' if unassigned_html else ""}}
+{row_1_section}
+{row_2_section}
+{row_3_section}
+{row_4_section}
 </div>
 </body>
 </html>"""
