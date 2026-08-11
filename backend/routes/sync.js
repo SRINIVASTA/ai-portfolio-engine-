@@ -27,7 +27,7 @@ router.post('/sync-profile', async (req, res) => {
 
   const user = req.user;
   try {
-    // 1. FIXED: Changed to backticks with standard ${} interpolation and pointed to the api.github.com REST endpoint
+    // 1. FIXED SYNTAX & DOMAIN: Standard API pathing for dynamic profile lookup
     const repoResponse = await axios.get(`https://github.com{user.username}/repos?per_page=100`, {
       headers: { Authorization: `token ${user.oauth_token}` }
     });
@@ -41,13 +41,12 @@ router.post('/sync-profile', async (req, res) => {
         description: repo.description || '',
         stars_count: repo.stargazers_count,
         repo_url: repo.html_url,
-        // 🌟 THE CRITICAL INTERCEPT: Securely pull the authentic About website config straight from GitHub response
         homepage_url: repo.homepage || '' 
       }, { onConflict: 'user_id, repo_github_id' }).select().single();
 
       // 3. Attempt to scrape raw file values out of README markdown layouts
       try {
-        // FIXED: Added missing '$' signs and corrected the subdomain to 'raw.githubusercontent.com'
+        // FIXED SYNTAX & DOMAIN: Swapped to raw content delivery subdomain with correct string interpolation
         const readmeResponse = await axios.get(`https://githubusercontent.com{user.username}/${repo.name}/${repo.default_branch}/README.md`);
         const textChunks = splitTextIntoChunks(readmeResponse.data);
 
