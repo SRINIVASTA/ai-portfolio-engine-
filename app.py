@@ -103,6 +103,13 @@ if not st.session_state.logged_in:
   cleaned_username = cleaned_username.replace("github.com", "").replace("https:", "").replace("http:", "")
   cleaned_username = cleaned_username.strip("/")
   cleaned_username = cleaned_username.strip()
+
+  # 1. THIS IS GOOD (Checks and blocks immediately)
+  if cleaned_username.lower() == "srinivasta":
+   st.error("❌ Access Denied: Synchronization is restricted for this profile identifier.")
+   st.stop()  
+
+
  
   if cleaned_username and len(cleaned_username) > 1: 
    st.session_state.logged_in = True 
