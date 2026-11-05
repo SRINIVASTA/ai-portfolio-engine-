@@ -2,6 +2,9 @@
 
 A multi-user, multi-tenant hybrid SaaS platform built with a Node.js/Express backend API, a React frontend dashboard, and an integrated Python machine-learning/compilation pipeline. The platform automatically converts any developer's public GitHub profile into a stylized portfolio website, complete with an integrated Retrieval-Augmented Generation (RAG) chatbot trained on repository documentation and scoped strictly by user ID to prevent data leakage.
 
+## 🛠️ Architecture & Core Components
+
+```mermaid
 graph TD
     %% Nodes & Actors
     Dev([External Developer])
@@ -42,6 +45,9 @@ graph TD
     Chat -->|Handles RAG Chatbot Column| React
     Landing -->|Rendered Inside Portfolio| ProfileShell.jsx
     React --> ProfileShell.jsx
+
+```
+
 
 
 ```text
