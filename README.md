@@ -1,7 +1,7 @@
 # AI Portfolio Engine 🚀
 
 A multi-user, multi-tenant hybrid SaaS platform built with a Node.js/Express backend API, a React frontend dashboard, and an integrated Python machine-learning/compilation pipeline. The platform automatically converts any developer's public GitHub profile into a stylized portfolio website, complete with an integrated Retrieval-Augmented Generation (RAG) chatbot trained on repository documentation and scoped strictly by user ID to prevent data leakage.
-```
+
 graph TD
     %% Nodes & Actors
     Dev([External Developer])
