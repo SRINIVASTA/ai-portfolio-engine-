@@ -1,8 +1,51 @@
 # AI Portfolio Engine 🚀
 
 A multi-user, multi-tenant hybrid SaaS platform built with a Node.js/Express backend API, a React frontend dashboard, and an integrated Python machine-learning/compilation pipeline. The platform automatically converts any developer's public GitHub profile into a stylized portfolio website, complete with an integrated Retrieval-Augmented Generation (RAG) chatbot trained on repository documentation and scoped strictly by user ID to prevent data leakage.
+```
+graph TD
+    %% Nodes & Actors
+    Dev([External Developer])
+    
+    subgraph Express [Node.js / Express API Server]
+        Auth[Passport.js OAuth]
+        Sync[routes/sync.js<br/>- Scrapes GitHub API<br/>- Extracts Repo Metrics]
+        Chat[api/chat.js<br/>- Tenant-Isolated RAG Chat Router]
+    end
 
-🌐 **Live Interactive Web App:** [Launch Live Streamlit Dashboard](https://ai-portfolio-engine-ff8xe6eqoduk7vkcxkhcsf.streamlit.app/)
+    subgraph PythonEngines [Python Compilation & ML Pipeline]
+        Compiler[compiler.py<br/>- Regex URL Parser<br/>- Fallback HTML Crawler]
+        ML[ml_processor.py<br/>- Semantic Chunking<br/>- Vector Embeddings]
+    end
+
+    subgraph Storage [Supabase PostgreSQL DB]
+        DB[(Relational Schema<br/>- users<br/>- repositories<br/>- documents)]
+        Vector[pgvector Spatial Models<br/>- Scoped Isolation Filter]
+    end
+
+    subgraph UI [Interactive Frontend Shell]
+        React[React Client Workspace<br/>- Home.jsx Analytics<br/>- ProfileShell.jsx Layout]
+        Landing[index.html Landing Page<br/>- Multi-Track Sorted Rows]
+    end
+
+    %% Relations & Data Flow
+    Dev -->|Sign In with GitHub| Auth
+    Auth -->|Triggers Sync / Child Process| Sync
+    Sync -->|Invokes Scraper & Matrix Calculations| ML
+    Sync -->|Spawns Code Compilation Worker| Compiler
+    
+    ML -->|Slices & Saves Text Context| DB
+    Compiler -->|Assembles Dynamic Matrix Rows| Landing
+    
+    DB -->|Enforces Tenant Isolation| Vector
+    Vector -->|Feeds Filtered Scoped Embeddings| Chat
+    
+    Chat -->|Handles RAG Chatbot Column| React
+    Landing -->|Rendered Inside Portfolio| ProfileShell.jsx
+    React --> ProfileShell.jsx
+
+
+
+```text
 
 
 ## 🏗️ System Architecture
