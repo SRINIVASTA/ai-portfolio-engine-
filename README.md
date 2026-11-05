@@ -6,25 +6,25 @@ graph TD
     %% Nodes & Actors
     Dev([External Developer])
     
-    subgraph Express [Node.js / Express API Server]
+    subgraph Express ["Node.js / Express API Server"]
         Auth[Passport.js OAuth]
-        Sync[routes/sync.js<br/>- Scrapes GitHub API<br/>- Extracts Repo Metrics]
-        Chat[api/chat.js<br/>- Tenant-Isolated RAG Chat Router]
+        Sync["routes/sync.js<br/>- Scrapes GitHub API<br/>- Extracts Repo Metrics"]
+        Chat["api/chat.js<br/>- Tenant-Isolated RAG Chat Router"]
     end
 
-    subgraph PythonEngines [Python Compilation & ML Pipeline]
-        Compiler[compiler.py<br/>- Regex URL Parser<br/>- Fallback HTML Crawler]
-        ML[ml_processor.py<br/>- Semantic Chunking<br/>- Vector Embeddings]
+    subgraph PythonEngines ["Python Compilation & ML Pipeline"]
+        Compiler["compiler.py<br/>- Regex URL Parser<br/>- Fallback HTML Crawler"]
+        ML["ml_processor.py<br/>- Semantic Chunking<br/>- Vector Embeddings"]
     end
 
-    subgraph Storage [Supabase PostgreSQL DB]
-        DB[(Relational Schema<br/>- users<br/>- repositories<br/>- documents)]
-        Vector[pgvector Spatial Models<br/>- Scoped Isolation Filter]
+    subgraph Storage ["Supabase PostgreSQL DB"]
+        DB[("Relational Schema<br/>- users<br/>- repositories<br/>- documents")]
+        Vector["pgvector Spatial Models<br/>- Scoped Isolation Filter"]
     end
 
-    subgraph UI [Interactive Frontend Shell]
-        React[React Client Workspace<br/>- Home.jsx Analytics<br/>- ProfileShell.jsx Layout]
-        Landing[index.html Landing Page<br/>- Multi-Track Sorted Rows]
+    subgraph UI ["Interactive Frontend Shell"]
+        React["React Client Workspace<br/>- Home.jsx Analytics<br/>- ProfileShell.jsx Layout"]
+        Landing["index.html Landing Page<br/>- Multi-Track Sorted Rows"]
     end
 
     %% Relations & Data Flow
@@ -42,7 +42,6 @@ graph TD
     Chat -->|Handles RAG Chatbot Column| React
     Landing -->|Rendered Inside Portfolio| ProfileShell.jsx
     React --> ProfileShell.jsx
-
 
 
 ```text
