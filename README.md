@@ -48,50 +48,6 @@ graph TD
 
 ```
 
-
-
-```text
-
-
-## 🏗️ System Architecture
-
-```text
-[ External Developer ] ---> Sign In with GitHub Handle (Passport.js OAuth)
-                                    |
-                                    v
-                        [ Node.js/Express Server ] <---+ Triggers Child Process execution
-
-                                    |                  |
-            +-----------------------+------------------+----+
-
-            |                                               |
-            v                                               v
-[ backend/routes/sync.js ]                         [ backend/compiler.py ]
-- Scrapes repositories via API                     - Protocol-agnostic regex URL parser
-- Extracts metrics & repository homepages          - Google AI-style sidebar live HTML crawler
-
-            |                                               |
-            |                                               v
-            |                                      [ index.html Landing Page ]
-            |                                      - Visual multi-track sorted component rows
-            v                                               
-[ backend/ml_processor.py ] 
-- Processes text context chunking transformations
-- Slices markdown into semantic embeddings
-            |                                               
-            +-----------------------+-----------------------+
-                                    |
-                                    v
-                       [ Supabase PostgreSQL DB ]
-               - Matrix Tables: 'users', 'repositories', 'documents'
-               - Scoped Vector isolation filters (pgvector spatial models)
-                                    |
-                                    v
-                     [ Interactive Frontend Shell ]
-               - React Client Web Workspace (Home.jsx, ProfileShell.jsx)
-               - Tenant-isolated RAG Chatbot Column (chat.js Node API router)
-```
-
 ## 🛠️ Tech Stack & Architecture Matrix
 
 | Layer | Component | Description |
