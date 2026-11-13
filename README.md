@@ -2,50 +2,70 @@
 
 A multi-user, multi-tenant hybrid SaaS platform built with a Node.js/Express backend API, a React frontend dashboard, and an integrated Python machine-learning/compilation pipeline. The platform automatically converts any developer's public GitHub profile into a stylized portfolio website, complete with an integrated Retrieval-Augmented Generation (RAG) chatbot trained on repository documentation and scoped strictly by user ID to prevent data leakage.
 
-## 🛠️ Architecture & Core Components
+## 🏛️ Architecture & Core Components
 
 ```mermaid
-graph TD
+flowchart TD
+    %% Base Infrastructure Styling
+    classDef actor fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px;
+    classDef express fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef python fill:#fff8e1,stroke:#f9a825,stroke-width:2px;
+    classDef storage fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef ui fill:#fce4ec,stroke:#c2185b,stroke-width:2px;
+
     %% Nodes & Actors
-    Dev([External Developer])
+    Dev([External Developer]):::actor
     
-    subgraph Express ["Node.js / Express API Server"]
-        Auth[Passport.js OAuth]
-        Sync["routes/sync.js<br/>- Scrapes GitHub API<br/>- Extracts Repo Metrics"]
-        Chat["api/chat.js<br/>- Tenant-Isolated RAG Chat Router"]
+    subgraph Express ["⚡ Node.js / Express API Server"]
+        Auth[Passport.js OAuth]:::express
+        Sync["routes/sync.js<br/>- Scrapes GitHub API<br/>- Extracts Repo Metrics"]:::express
+        Chat["api/chat.js<br/>- Tenant-Isolated RAG Chat Router"]:::express
     end
 
-    subgraph PythonEngines ["Python Compilation & ML Pipeline"]
-        Compiler["compiler.py<br/>- Regex URL Parser<br/>- Fallback HTML Crawler"]
-        ML["ml_processor.py<br/>- Semantic Chunking<br/>- Vector Embeddings"]
+    subgraph PythonEngines ["🐍 Python Compilation & ML Pipeline"]
+        Compiler["compiler.py<br/>- Regex URL Parser<br/>- Fallback HTML Crawler"]:::python
+        ML["ml_processor.py<br/>- Semantic Chunking<br/>- Vector Embeddings"]:::python
     end
 
-    subgraph Storage ["Supabase PostgreSQL DB"]
-        DB[("Relational Schema<br/>- users<br/>- repositories<br/>- documents")]
-        Vector["pgvector Spatial Models<br/>- Scoped Isolation Filter"]
+    subgraph Storage ["🗄️ Supabase PostgreSQL DB"]
+        DB[("Relational Schema<br/>- users<br/>- repositories<br/>- documents")]:::storage
+        Vector["pgvector Spatial Models<br/>- Scoped Isolation Filter"]:::storage
     end
 
-    subgraph UI ["Interactive Frontend Shell"]
-        React["React Client Workspace<br/>- Home.jsx Analytics<br/>- ProfileShell.jsx Layout"]
-        Landing["index.html Landing Page<br/>- Multi-Track Sorted Rows"]
+    subgraph UI ["🖥️ Interactive Frontend Shell"]
+        React["React Client Workspace<br/>- Home.jsx Analytics<br/>- ProfileShell.jsx Layout"]:::ui
+        Landing["index.html Landing Page<br/>- Multi-Track Sorted Rows"]:::ui
+        Shell["ProfileShell.jsx<br/>- Unified Portfolio Container"]:::ui
     end
 
-    %% Relations & Data Flow
-    Dev -->|Sign In with GitHub| Auth
-    Auth -->|Triggers Sync / Child Process| Sync
-    Sync -->|Invokes Scraper & Matrix Calculations| ML
-    Sync -->|Spawns Code Compilation Worker| Compiler
+    %% Animated Relations & Data Flow
+    Dev e1@-->|"Sign In with GitHub"| Auth
+    Auth e2@-->|"Triggers Sync / Child Process"| Sync
+    Sync e3@-->|"Invokes Scraper & Matrix Calc"| ML
+    Sync e4@-->|"Spawns Code Compilation Worker"| Compiler
     
-    ML -->|Slices & Saves Text Context| DB
-    Compiler -->|Assembles Dynamic Matrix Rows| Landing
+    ML e5@-->|"Slices & Saves Text Context"| DB
+    Compiler e6@-->|"Assembles Dynamic Matrix Rows"| Landing
     
-    DB -->|Enforces Tenant Isolation| Vector
-    Vector -->|Feeds Filtered Scoped Embeddings| Chat
+    DB e7@-->|"Enforces Tenant Isolation"| Vector
+    Vector e8@-->|"Feeds Filtered Scoped Embeddings"| Chat
     
-    Chat -->|Handles RAG Chatbot Column| React
-    Landing -->|Rendered Inside Portfolio| ProfileShell.jsx
-    React --> ProfileShell.jsx
+    Chat e9@-->|"Handles RAG Chatbot Column"| React
+    Landing e10@-->|"Rendered Inside Portfolio"| Shell
+    React e11@-->|"Mounts Workspace Views"| Shell
 
+    %% Running Flow Animation Definitions
+    e1@{ animate: true }
+    e2@{ animate: true }
+    e3@{ animate: true }
+    e4@{ animate: true }
+    e5@{ animate: true }
+    e6@{ animate: true }
+    e7@{ animate: true }
+    e8@{ animate: true }
+    e9@{ animate: true }
+    e10@{ animate: true }
+    e11@{ animate: true }
 ```
 
 ## 🛠️ Tech Stack & Architecture Matrix
