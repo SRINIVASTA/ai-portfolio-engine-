@@ -2,6 +2,13 @@
 
 A multi-user, multi-tenant hybrid SaaS platform built with a Node.js/Express backend API, a React frontend dashboard, and an integrated Python machine-learning/compilation pipeline. The platform automatically converts any developer's public GitHub profile into a stylized portfolio website, complete with an integrated Retrieval-Augmented Generation (RAG) chatbot trained on repository documentation and scoped strictly by user ID to prevent data leakage.
 
+### ⭐ Show Your Support
+
+If you like the UI design, multi-tenant architecture, or RAG pipeline engineering behind **AI Portfolio Engine**, please consider giving this repository a **Star ⭐** on GitHub! It helps showcase this work and motivates future builds.
+
+<img src="assets/desktop.png" width="100%" alt="Desktop Preview">
+
+
 ## 🏛️ Architecture & Core Components
 
 ```mermaid
@@ -163,6 +170,11 @@ streamlit run app.py
 - [ ] Set up custom subdomain tracking strings (`username.portfolio.dev`) for deployment mapping.
 
 ---
+
+## ⚠️ Disclaimer
+
+This project is intended for developer portfolio generation, technical demonstration, and automated documentation retrieval. Users are responsible for securing their own GitHub OAuth credentials, Supabase database keys, and LLM API tokens locally, complying with GitHub API rate limits and terms of service, and verifying AI-generated RAG chatbot responses for accuracy.
+
 ## 🛡️ License, Copyright & Compliance Notices
 
 **All Rights Reserved © 2026 T A Srinivas.**
@@ -175,9 +187,9 @@ For corporate licensing, enterprise deployment, or commercial inquiries, please 
 
 ### 🌐 Let’s Connect
 
-- [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/srinivas-t-a-557637119/)  
-- [![Kaggle](https://img.shields.io/badge/Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/srinivasta)  
-- [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:tasrinivass@gmail.com)  
-- [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/srinivasta)
-- [![Website](https://img.shields.io/badge/Website-000000?style=for-the-badge&logo=website&logoColor=white)](https://srinivasta.github.io)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/srinivas-t-a-557637119/)
+[![Kaggle](https://img.shields.io/badge/Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/srinivasta)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:tasrinivass@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/srinivasta)
+[![Website](https://img.shields.io/badge/Website-000000?style=for-the-badge&logo=website&logoColor=white)](https://srinivasta.github.io)
 
